@@ -1,0 +1,121 @@
+{% extends 'navbar.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-wrapper">
+        <h2>{{ title }}</h2>
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-field">
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <div class="checkbox-field">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    {% elif field.field.widget.input_type == 'checkboxselectmultiple' %}
+                        <label>{{ field.label }}</label>
+                        
+                        <!-- Category Filter -->
+                        <div class="category-filter-section" style="margin-bottom: 20px;">
+                            <label for="category_filter">Filter by Category:</label>
+                            <select id="category_filter" class="category-filter-select" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
+                                <option value="">All Categories</option>
+                                <option value="poor">Poor People</option>
+                                <option value="staff">Staff Member</option>
+                                <option value="student">Madrassat Student</option>
+                                <option value="teacher">Oustadh</option>
+                                <option value="elder">Elder</option>
+                                <option value="orphan">Orphan kid</option>
+                                <option value="sick">Sick Person</option>
+                                <option value="disabled">Disabled Person</option>
+                                <option value="widow">Widow</option>
+                                <option value="refugee">Refugee</option>
+                                <option value="family">Family member</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="beneficiaries-list">
+                            {% for choice in field %}
+                                <div class="checkbox-field" data-category="{{ choice.choice_label|lower }}">
+                                    {{ choice.tag }}
+                                    <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const categoryFilter = document.getElementById('category_filter');
+                                const beneficiariesList = document.querySelectorAll('.checkbox-field[data-category]');
+                                
+                                // Extract category from beneficiary display text (format: "Name - Category")
+                                beneficiariesList.forEach(item => {
+                                    const label = item.querySelector('label');
+                                    if (label) {
+                                        const text = label.textContent;
+                                        // Extract category from the choice_label format
+                                        if (text.includes(' - ')) {
+                                            const category = text.split(' - ')[1].toLowerCase().trim();
+                                            item.dataset.category = category;
+                                        }
+                                    }
+                                });
+                                
+                                categoryFilter.addEventListener('change', function() {
+                                    const selectedCategory = this.value.toLowerCase();
+                                    
+                                    beneficiariesList.forEach(item => {
+                                        if (selectedCategory === '') {
+                                            // Show all
+                                            item.style.display = 'flex';
+                                        } else {
+                                            // Show only matching category
+                                            const itemCategory = item.dataset.category;
+                                            if (itemCategory.includes(selectedCategory)) {
+                                                item.style.display = 'flex';
+                                            } else {
+                                                item.style.display = 'none';
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                    {% else %}
+                        {{ field.label_tag }}
+                        {{ field }}
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in field.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{% if program %}{% url 'program_detail' id=program.id %}{% else %}{% url 'home' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

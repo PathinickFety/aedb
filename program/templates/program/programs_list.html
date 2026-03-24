@@ -1,0 +1,388 @@
+{% extends "navbar.html" %}
+
+{% block title %}All Programs - AEDB{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <!-- Search Section -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="search-input" 
+                    placeholder="Search programs by name, location, type... or responsible person..." 
+                    value="{{ search_query }}"
+                >
+                <button type="submit" class="search-btn">
+                    <span>🔍</span> Search
+                </button>
+                {% if search_query %}
+                    <a href="{% url 'programs_list' %}" class="clear-search">Clear</a>
+                {% endif %}
+            </div>
+            {% if search_query %}
+                <div class="search-info">
+                    <p>🔍 Search results for: <strong>"{{ search_query }}"</strong></p>
+                    <p>Found <strong>{{ programs.count }}</strong> program(s)</p>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Programs Section -->
+    <section class="data-section">
+        <div class="section-header">
+            <h2>All Programs</h2>
+            <span class="section-count">{{ programs.count }} Programs</span>
+        </div>
+
+        {% if programs %}
+            <div class="programs-grid">
+                {% for program in programs %}
+                    <a href="{% url 'program_detail' program.id %}" class="program-card {% if program.is_finished %}program-finished{% endif %}">
+                        <div class="program-card-header">
+                            <h3>{{ program.name }}</h3>
+                            <span class="program-type">{{ program.get_program_type_display }}</span>
+                            {% if program.is_finished %}
+                                <span class="finished-badge">✓ Finished</span>
+                            {% endif %}
+                        </div>
+                        <div class="program-card-body">
+                            <div class="program-info-item">
+                                <span class="info-label">📅 Date:</span>
+                                <span class="info-value">{{ program.date }}</span>
+                            </div>
+                            <div class="program-info-item">
+                                <span class="info-label">🕐 Time:</span>
+                                <span class="info-value">{{ program.time }}</span>
+                            </div>
+                            <div class="program-info-item">
+                                <span class="info-label">📍 Location:</span>
+                                <span class="info-value">{{ program.place }}</span>
+                            </div>
+                            <div class="program-info-item">
+                                <span class="info-label">👨‍💼 Responsible:</span>
+                                <span class="info-value">{{ program.responsible }}</span>
+                            </div>
+                            <div class="program-beneficiaries">
+                                <span class="badge">{{ program.beneficiaries.count }} Beneficiaries</span>
+                            </div>
+                        </div>
+                        <div class="program-footer">
+                            <small>Created: {{ program.created_at|date:"M d, Y" }}</small>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No Programs Found</h3>
+                <p>Get started by creating your first program</p>
+                <a href="{% url 'program_create' %}" class="btn btn-primary">Create Program</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <div class="back-to-home">
+        <a href="{% url 'home' %}" class="btn btn-secondary">← Back to Home</a>
+    </div>
+</div>
+
+<style>
+    .programs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+    }
+
+    .program-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px var(--shadow);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .program-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px var(--shadow);
+        border-color: var(--button-primary-bg);
+    }
+
+    .program-card.program-finished {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+
+    .program-card.program-finished:hover {
+        background-color: rgba(220, 53, 69, 0.15);
+        border-color: rgba(220, 53, 69, 0.5);
+    }
+
+    .program-card-header {
+        background-color: var(--bg-secondary);
+        padding: 20px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .program-card-header h3 {
+        margin: 0 0 10px 0;
+        color: var(--text-primary);
+        font-size: 1.3em;
+    }
+
+    .program-type {
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .finished-badge {
+        background-color: var(--button-danger-bg);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75em;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .program-card-body {
+        padding: 20px;
+        flex: 1;
+    }
+
+    .program-info-item {
+        display: flex;
+        margin-bottom: 12px;
+        gap: 10px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--text-secondary);
+        min-width: 90px;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+    }
+
+    .program-beneficiaries {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .badge {
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .program-footer {
+        padding: 12px 20px;
+        background-color: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.85em;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        border-bottom: 3px solid var(--button-primary-bg);
+        padding-bottom: 15px;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: 1.8em;
+    }
+
+    .section-count {
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    .search-section {
+        background-color: var(--card-bg);
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 40px;
+        box-shadow: 0 2px 8px var(--shadow);
+        border: 1px solid var(--card-border);
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-input-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1em;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--button-primary-bg);
+        box-shadow: 0 0 8px var(--button-primary-bg);
+    }
+
+    .search-btn {
+        padding: 12px 25px;
+        background-color: var(--button-primary-bg);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .search-btn:hover {
+        background-color: var(--button-primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .clear-search {
+        padding: 12px 20px;
+        background-color: var(--button-secondary-bg);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .clear-search:hover {
+        background-color: var(--button-secondary-hover);
+        transform: translateY(-2px);
+    }
+
+    .search-info {
+        background-color: var(--bg-secondary);
+        padding: 15px 20px;
+        border-left: 4px solid var(--button-primary-bg);
+        border-radius: 6px;
+    }
+
+    .search-info p {
+        margin: 8px 0;
+        color: var(--text-primary);
+    }
+
+    .empty-state {
+        background-color: var(--bg-secondary);
+        padding: 60px 40px;
+        border-radius: 10px;
+        text-align: center;
+        border: 2px dashed var(--border-color);
+    }
+
+    .empty-icon {
+        font-size: 4em;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        font-size: 1.5em;
+        margin: 15px 0;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 1.05em;
+        margin-bottom: 25px;
+    }
+
+    .back-to-home {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+        padding: 20px 0;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background-color: var(--button-secondary-bg);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--button-secondary-hover);
+    }
+
+    @media (max-width: 768px) {
+        .programs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-input-wrapper {
+            flex-direction: column;
+        }
+
+        .search-input,
+        .search-btn,
+        .clear-search {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

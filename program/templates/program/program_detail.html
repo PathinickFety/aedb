@@ -1,0 +1,45 @@
+{% extends "navbar.html" %}
+
+{% block title %}{{ program.name }}{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>{{ program.name }}</h1>
+    
+    <div class="program-actions">
+        <a href="{% url 'program_update' id=program.id %}" class="btn btn-secondary">Edit Program</a>
+        <a href="{% url 'program_delete' id=program.id %}" class="btn btn-danger">Delete Program</a>
+    </div>
+    
+    <div class="program-info">
+        <h3>Program Information</h3>
+        <p><strong>Type:</strong> {{ program.get_program_type_display }}</p>
+        <p><strong>Location:</strong> {{ program.place }}</p>
+        <p><strong>Date & Time:</strong> {{ program.date }} at {{ program.time }}</p>
+        <p><strong>Responsible Person:</strong> {{ program.responsible }}</p>
+        {% if program.notes %}
+            <p><strong>Notes:</strong> {{ program.notes }}</p>
+        {% endif %}
+        
+        <h3>Timestamps</h3>
+        <p><strong>Created:</strong> {{ program.created_at|date:"M d, Y H:i" }}</p>
+        <p><strong>Last Updated:</strong> {{ program.update_at|date:"M d, Y H:i" }}</p>
+    </div>
+    
+    <hr>
+    
+    <div class="beneficiaries-section">
+        <h2>Beneficiaries ({{ program.beneficiaries.count }})</h2>
+        {% if program.beneficiaries.all %}
+            <ul class="beneficiaries-list">
+                {% for beneficiary in program.beneficiaries.all %}
+                    <li><a href="{% url 'beneficiary_detail' beneficiary.id %}">{{ beneficiary.full_name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No beneficiaries found.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

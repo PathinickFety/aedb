@@ -1,0 +1,66 @@
+{% extends "navbar.html" %}
+
+{% block title %}{{ beneficiary.full_name }}{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="beneficiary-header">
+        <h1>{{ beneficiary.full_name }}</h1>
+        <p class="category">{{ beneficiary.get_category_display }}</p>
+    </div>
+    
+    <div class="beneficiary-actions">
+        <a href="{% url 'beneficiary_update' id=beneficiary.id %}" class="btn btn-secondary">Edit Beneficiary</a>
+        <a href="{% url 'beneficiary_delete' id=beneficiary.id %}" class="btn btn-danger">Delete Beneficiary</a>
+    </div>
+    
+    <div class="beneficiary-info">
+        <h3>Personal Information</h3>
+        <p><strong>Full Name:</strong> {{ beneficiary.full_name }}</p>
+        {% if beneficiary.date_of_birth %}
+            <p><strong>Date of Birth:</strong> {{ beneficiary.date_of_birth }}</p>
+        {% endif %}
+        {% if beneficiary.age %}
+            <p><strong>Age:</strong> {{ beneficiary.age }} years</p>
+        {% endif %}
+        <p><strong>Category:</strong> {{ beneficiary.get_category_display }}</p>
+        
+        <h3>Contact Information</h3>
+        <p><strong>Primary Phone:</strong> {{ beneficiary.phone1 }}</p>
+        {% if beneficiary.phone2 %}
+            <p><strong>Secondary Phone:</strong> {{ beneficiary.phone2 }}</p>
+        {% endif %}
+        {% if beneficiary.phone3 %}
+            <p><strong>Tertiary Phone:</strong> {{ beneficiary.phone3 }}</p>
+        {% endif %}
+        
+        <h3>Address</h3>
+        <p>{{ beneficiary.address }}</p>
+        
+        <h3>Photo</h3>
+        {% if beneficiary.photo %}
+            <div class="beneficiary-photo">
+                <img src="{{ beneficiary.photo.url }}" alt="{{ beneficiary.full_name }}">
+            </div>
+        {% else %}
+            <div class="beneficiary-photo no-photo"></div>
+        {% endif %}
+        
+        <h3>Additional Details</h3>
+        <p><strong>Family Size:</strong> {{ beneficiary.family_size|default:"Not provided" }} members</p>
+        <p><strong>Is this person really in Need:</strong> {% if beneficiary.is_needed_person %}Yes{% else %}No{% endif %}</p>
+        <p><strong>Is this person serious:</strong> {% if beneficiary.is_serious %}Yes{% else %}No{% endif %}</p>
+    
+        {% if beneficiary.remarks %}
+            <h3>Remarks</h3>
+            <p>{{ beneficiary.remarks }}</p>
+        {% endif %}
+    </div>
+    
+    <hr>
+    
+    <div class="beneficiary-actions">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Go Back to Home</a>
+    </div>
+</div>
+{% endblock %}
