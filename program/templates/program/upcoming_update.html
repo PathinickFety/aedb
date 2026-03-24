@@ -1,0 +1,281 @@
+{% extends "navbar.html" %}
+
+{% block title %}Upcoming Updates{% endblock %}
+
+{% block content %}
+<style>
+    .updates-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .updates-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .updates-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+
+    .construction-banner {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--button-warning-bg), rgba(255, 193, 7, 0.3));
+        color: var(--text-color);
+        padding: 15px 30px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid var(--button-warning-bg);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .construction-banner-text {
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .version-info {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 5px;
+    }
+
+    .updates-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        margin-bottom: 30px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 40px;
+    }
+
+    .feature-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color);
+    }
+
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--text-color);
+    }
+
+    .feature-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.planned {
+        background-color: var(--button-primary-bg);
+    }
+
+    .status-badge.in-progress {
+        background-color: var(--button-warning-bg);
+    }
+
+    .cta-section {
+        text-align: center;
+        margin-top: 60px;
+        padding: 40px;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        border-radius: 12px;
+        color: white;
+    }
+
+    .cta-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+
+    .cta-section p {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        opacity: 0.95;
+    }
+
+    .cta-button {
+        background-color: white;
+        color: var(--primary-color);
+        padding: 12px 30px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+    }
+
+    .cta-button:hover {
+        background-color: transparent;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .updates-header h1 {
+            font-size: 2rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .cta-section h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="updates-container">
+    <!-- Header Section -->
+    <div class="updates-header">
+        <h1>🚀 Upcoming Updates</h1>
+        <div class="construction-banner">
+            <div class="construction-banner-text">🏗️ This version is under active development</div>
+            <div class="version-info">AEDB v1.0.0 - Many exciting features coming soon!</div>
+        </div>
+        <p class="updates-subtitle">We're working hard to bring you amazing new features. Here's what you can expect:</p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">Advanced Search & Filtering</div>
+            <p class="feature-description">Powerful search and filter functionality to easily find specific programs and beneficiaries across the system.</p>
+            <span class="status-badge planned">✓ Implemented</span>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <div class="feature-title">User Authentication</div>
+            <p class="feature-description">Secure user authentication and role-based authorization to control access to different features.</p>
+            <span class="status-badge in-progress">Planned</span>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Data Export</div>
+            <p class="feature-description">Export program and beneficiary data in CSV or Excel format for reporting and analysis purposes.</p>
+            <span class="status-badge in-progress">Planned</span>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <div class="feature-title">Enhanced UI/UX</div>
+            <p class="feature-description">Improved user interface with better styling and responsive design optimized for all devices.</p>
+            <span class="status-badge planned">✓ Implemented</span>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Smart Pagination</div>
+            <p class="feature-description">Advanced pagination system to improve performance when dealing with large datasets.</p>
+            <span class="status-badge planned">✓ Implemented</span>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <div class="feature-title">Analytics Dashboard</div>
+            <p class="feature-description">Interactive dashboard with visualizations for program performance and beneficiary demographics insights.</p>
+            <span class="status-badge in-progress">Planned</span>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="feature-card">
+            <div class="feature-icon">📧</div>
+            <div class="feature-title">Email Notifications</div>
+            <p class="feature-description">Automated email notifications for important events like program updates and beneficiary registrations.</p>
+            <span class="status-badge in-progress">Planned</span>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="feature-card">
+            <div class="feature-icon">📁</div>
+            <div class="feature-title">Document Management</div>
+            <p class="feature-description">Upload, organize, and manage program-related documents and images with ease.</p>
+            <span class="status-badge in-progress">Planned</span>
+        </div>
+
+        <!-- Feature 9 -->
+        <div class="feature-card">
+            <div class="feature-icon">🌙</div>
+            <div class="feature-title">Dark Mode Theme</div>
+            <p class="feature-description">Beautiful dark mode with smooth theme switching for comfortable viewing in any lighting condition.</p>
+            <span class="status-badge planned">✓ Implemented</span>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <h2>Stay Tuned for Updates!</h2>
+        <p>We're continuously improving AEDB to serve you better. Check back soon for new features and improvements.</p>
+        <a href="{% url 'home' %}" class="cta-button">Back to Home</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,756 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+<div class="content-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1>AEDB Database</h1>
+        <p class="hero-subtitle">Manage your programs and beneficiaries efficiently and effectively</p>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">{{ programs.count }}</div>
+                <div class="stat-label">Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ beneficiaries.count }}</div>
+                <div class="stat-label">Beneficiaries</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="quick-actions">
+        <a href="{% url 'program_create' %}" class="action-card create-program">
+            <div class="action-icon">📋</div>
+            <div class="action-content">
+                <h3>Create New Program</h3>
+                <p>Start a new social welfare program</p>
+            </div>
+        </a>
+        <a href="{% url 'beneficiary_create' %}" class="action-card add-beneficiary">
+            <div class="action-icon">👤</div>
+            <div class="action-content">
+                <h3>Add New Beneficiary</h3>
+                <p>Register a new beneficiary in the system</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="search-input" 
+                    placeholder="Search programs by name, location, type... or search beneficiaries by name, phone, address..." 
+                    value="{{ search_query }}"
+                >
+                <button type="submit" class="search-btn">
+                    <span>🔍</span> Search
+                </button>
+                {% if search_query %}
+                    <a href="{% url 'home' %}" class="clear-search">Clear</a>
+                {% endif %}
+            </div>
+            {% if search_query %}
+                <div class="search-info">
+                    <p>🔍 Search results for: <strong>"{{ search_query }}"</strong></p>
+                    <p>Found <strong>{{ programs.count }}</strong> program(s) and <strong>{{ beneficiaries.count }}</strong> beneficiary(ies)</p>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Programs Section -->
+    <section class="data-section">
+        <div class="section-header">
+            <h2>Coming Programs</h2>
+            <span class="section-count">{{ programs.count }} Programs</span>
+        </div>
+
+        {% if programs %}
+            <div class="programs-grid">
+                {% for program in programs|slice:":3" %}
+                    <a href="{% url 'program_detail' program.id %}" class="program-card {% if program.is_finished %}program-finished{% endif %}">
+                        <div class="program-card-header">
+                            <h3>{{ program.name }}</h3>
+                            <span class="program-type">{{ program.get_program_type_display }}</span>
+                            {% if program.is_finished %}
+                                <span class="finished-badge">✓ Finished</span>
+                            {% endif %}
+                        </div>
+                        <div class="program-card-body">
+                            <div class="program-info-item">
+                                <span class="info-label">📅 Date:</span>
+                                <span class="info-value">{{ program.date }}</span>
+                            </div>
+                            <div class="program-info-item">
+                                <span class="info-label">🕐 Time:</span>
+                                <span class="info-value">{{ program.time }}</span>
+                            </div>
+                            <div class="program-info-item">
+                                <span class="info-label">📍 Location:</span>
+                                <span class="info-value">{{ program.place }}</span>
+                            </div>
+                            <div class="program-info-item">
+                                <span class="info-label">👨‍💼 Responsible:</span>
+                                <span class="info-value">{{ program.responsible }}</span>
+                            </div>
+                            <div class="program-beneficiaries">
+                                <span class="badge">{{ program.beneficiaries.count }} Beneficiaries</span>
+                            </div>
+                        </div>
+                        <div class="program-footer">
+                            <small>Created: {{ program.created_at|date:"M d, Y" }}</small>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+            {% if programs.count > 3 %}
+                <div class="view-more-section">
+                    <a href="{% url 'programs_list' %}" class="btn btn-primary">View All Programs ({{ programs.count }})</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No Programs Found</h3>
+                <p>Get started by creating your first program</p>
+                <a href="{% url 'program_create' %}" class="btn btn-primary">Create Program</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Beneficiaries Section -->
+    <section class="data-section">
+        <div class="section-header">
+            <h2>Newest Beneficiaries</h2>
+            <span class="section-count">{{ beneficiaries.count }} Beneficiaries</span>
+        </div>
+
+        {% if beneficiaries %}
+            <div class="beneficiaries-grid">
+                {% for beneficiary in beneficiaries|slice:":6" %}
+                    <a href="{% url 'beneficiary_detail' beneficiary.id %}" class="beneficiary-card">
+                        <div class="card-photo">
+                            {% if beneficiary.photo %}
+                                <img src="{{ beneficiary.photo.url }}" alt="{{ beneficiary.full_name }}">
+                            {% else %}
+                                <div class="photo-placeholder">👤</div>
+                            {% endif %}
+                        </div>
+                        <div class="beneficiary-card-body">
+                            <h3>{{ beneficiary.full_name }}</h3>
+                            <div class="beneficiary-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Category:</span>
+                                    <span class="detail-value badge">{{ beneficiary.get_category_display }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Age:</span>
+                                    <span class="detail-value">{{ beneficiary.age|default:"N/A" }} years</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Phone:</span>
+                                    <span class="detail-value">{{ beneficiary.phone1 }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Family Size:</span>
+                                    <span class="detail-value">{{ beneficiary.family_size|default:"N/A" }} members</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small>Added: {{ beneficiary.created_at|date:"M d, Y" }}</small>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+            {% if beneficiaries.count > 6 %}
+                <div class="view-more-section">
+                    <a href="{% url 'beneficiaries_list' %}" class="btn btn-primary">View All Beneficiaries ({{ beneficiaries.count }})</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <h3>No Beneficiaries Found</h3>
+                <p>Start by adding your first beneficiary to the system</p>
+                <a href="{% url 'beneficiary_create' %}" class="btn btn-primary">Add Beneficiary</a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--button-primary-bg) 0%, #0056b3 100%);
+        color: white;
+        padding: 50px 40px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px var(--shadow);
+        animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-section h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.8em;
+        font-weight: bold;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2em;
+        margin: 0 0 30px 0;
+        opacity: 0.95;
+    }
+
+    /* Statistics */
+    .stats-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px 30px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        min-width: 120px;
+    }
+
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 50px;
+    }
+
+    .action-card {
+        background: var(--card-bg);
+        border: 2px solid var(--card-border);
+        border-radius: 12px;
+        padding: 30px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px var(--shadow);
+        border-color: var(--button-primary-bg);
+    }
+
+    .action-icon {
+        font-size: 2.5em;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .action-content h3 {
+        margin: 0 0 8px 0;
+        color: var(--text-primary);
+        font-size: 1.3em;
+    }
+
+    .action-content p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95em;
+    }
+
+    /* Data Section */
+    .data-section {
+        margin-bottom: 50px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        border-bottom: 3px solid var(--button-primary-bg);
+        padding-bottom: 15px;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: 1.8em;
+    }
+
+    .section-count {
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    /* Programs Grid */
+    .programs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+    }
+
+    .program-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px var(--shadow);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .program-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px var(--shadow);
+        border-color: var(--button-primary-bg);
+    }
+
+    .program-card-header {
+        background-color: var(--bg-secondary);
+        padding: 20px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .program-card-header h3 {
+        margin: 0 0 10px 0;
+        color: var(--text-primary);
+        font-size: 1.3em;
+    }
+
+    .program-type {
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .program-card-body {
+        padding: 20px;
+        flex: 1;
+    }
+
+    .program-info-item {
+        display: flex;
+        margin-bottom: 12px;
+        gap: 10px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--text-secondary);
+        min-width: 90px;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+    }
+
+    .program-beneficiaries {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .badge {
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .program-footer {
+        padding: 12px 20px;
+        background-color: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.85em;
+    }
+
+    /* Finished Program Styling */
+    .program-card.program-finished {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+
+    .program-card.program-finished:hover {
+        background-color: rgba(220, 53, 69, 0.15);
+        border-color: rgba(220, 53, 69, 0.5);
+    }
+
+    .finished-badge {
+        background-color: var(--button-danger-bg);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75em;
+        font-weight: bold;
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    /* View More Section */
+    .view-more-section {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        padding: 20px 0;
+    }
+
+    .view-more-section .btn {
+        padding: 12px 30px;
+        font-size: 1.05em;
+        font-weight: bold;
+    }
+
+    /* Beneficiaries Grid */
+    .beneficiaries-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .beneficiary-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px var(--shadow);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .beneficiary-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px var(--shadow);
+        border-color: var(--button-primary-bg);
+    }
+
+    .card-photo {
+        width: 100%;
+        height: 180px;
+        background-color: var(--bg-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .card-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .photo-placeholder {
+        font-size: 4em;
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
+    .beneficiary-card-body {
+        padding: 20px;
+        flex: 1;
+    }
+
+    .beneficiary-card-body h3 {
+        margin: 0 0 15px 0;
+        color: var(--text-primary);
+        font-size: 1.2em;
+    }
+
+    .beneficiary-details {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .detail-item {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.9em;
+    }
+
+    .detail-value {
+        color: var(--text-primary);
+        font-size: 0.9em;
+    }
+
+    .detail-value.badge {
+        display: inline-block;
+        background-color: var(--button-primary-bg);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+
+    .card-footer {
+        padding: 12px 20px;
+        background-color: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.85em;
+    }
+
+    /* Empty State */
+    .empty-state {
+        background-color: var(--bg-secondary);
+        padding: 60px 40px;
+        border-radius: 10px;
+        text-align: center;
+        border: 2px dashed var(--border-color);
+    }
+
+    .empty-icon {
+        font-size: 4em;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        font-size: 1.5em;
+        margin: 15px 0;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 1.05em;
+        margin-bottom: 25px;
+    }
+
+    /* Search Section */
+    .search-section {
+        background-color: var(--card-bg);
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 40px;
+        box-shadow: 0 2px 8px var(--shadow);
+        border: 1px solid var(--card-border);
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .search-input-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1em;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--button-primary-bg);
+        box-shadow: 0 0 8px var(--button-primary-bg);
+    }
+
+    .search-input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .search-btn {
+        padding: 12px 25px;
+        background-color: var(--button-primary-bg);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .search-btn:hover {
+        background-color: var(--button-primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .clear-search {
+        padding: 12px 20px;
+        background-color: var(--button-secondary-bg);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95em;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .clear-search:hover {
+        background-color: var(--button-secondary-hover);
+        transform: translateY(-2px);
+    }
+
+    .search-info {
+        background-color: var(--bg-secondary);
+        padding: 15px 20px;
+        border-left: 4px solid var(--button-primary-bg);
+        border-radius: 6px;
+    }
+
+    .search-info p {
+        margin: 8px 0;
+        color: var(--text-primary);
+        font-size: 0.95em;
+    }
+
+    .search-info strong {
+        color: var(--button-primary-bg);
+        font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .search-input-wrapper {
+            flex-direction: column;
+        }
+
+        .search-input,
+        .search-btn,
+        .clear-search {
+            width: 100%;
+        }
+
+        .search-section {
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 35px 25px;
+            margin-bottom: 30px;
+        }
+
+        .hero-section h1 {
+            font-size: 2em;
+        }
+
+        .hero-subtitle {
+            font-size: 1em;
+        }
+
+        .stats-container {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            padding: 20px;
+            gap: 15px;
+        }
+
+        .programs-grid,
+        .beneficiaries-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .section-count {
+            width: 100%;
+            text-align: center;
+        }
+
+        .program-card-header,
+        .program-card-body,
+        .program-footer,
+        .beneficiary-card-body,
+        .card-footer {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,447 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+<div class="content-container">
+    <div class="vision-header">
+        <h1>Our Vision & Mission</h1>
+        <p class="tagline">Empowering organizations to create meaningful social impact through effective program management</p>
+    </div>
+
+    <div class="vision-content">
+        <!-- Mission Section -->
+        <section class="vision-section mission-section">
+            <div class="section-icon">🎯</div>
+            <h2>Our Mission</h2>
+            <p>At AEDB Database, our mission is to empower organizations and individuals to manage their social welfare programs with greater efficiency, transparency, and impact. We provide innovative tools that enable organizations to track, analyze, and evaluate their programs and beneficiaries effectively. By leveraging technology, we help social welfare organizations optimize their operations and maximize the positive impact of their initiatives on the communities they serve.</p>
+        </section>
+
+        <!-- Vision Section -->
+        <section class="vision-section vision-statement-section">
+            <div class="section-icon">🌟</div>
+            <h2>Our Vision</h2>
+            <p>We envision a future where technology enables every social welfare organization—regardless of size or resources—to efficiently manage their programs and create lasting positive change in their communities. We aspire to be a trusted partner in the social sector, helping organizations overcome operational challenges and focus on what matters most: improving the lives of their beneficiaries.</p>
+        </section>
+
+        <!-- Core Values Section -->
+        <section class="vision-section values-section">
+            <h2>Core Values</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">💼</div>
+                    <h3>Professionalism</h3>
+                    <p>We maintain the highest standards of quality and professionalism in all our operations and interactions with users.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h3>Collaboration</h3>
+                    <p>We believe in working together with organizations and communities to understand their needs and deliver solutions that truly make a difference.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">💡</div>
+                    <h3>Innovation</h3>
+                    <p>We continuously innovate and evolve our platform to meet the changing needs of the social welfare sector and leverage emerging technologies.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🔒</div>
+                    <h3>Trust & Security</h3>
+                    <p>We prioritize the security and confidentiality of your data, maintaining trust through transparent and reliable practices.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🌱</div>
+                    <h3>Sustainability</h3>
+                    <p>We are committed to building a sustainable platform that supports long-term positive impact in social welfare initiatives.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">📈</div>
+                    <h3>Impact</h3>
+                    <p>We measure our success by the tangible impact we help organizations achieve in improving beneficiary outcomes and community well-being.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Choose Us Section -->
+        <section class="vision-section why-us-section">
+            <h2>Why Choose AEDB Database?</h2>
+            <div class="reasons-grid">
+                <div class="reason-item">
+                    <span class="reason-number">01</span>
+                    <h4>User-Friendly Interface</h4>
+                    <p>Intuitive design that requires minimal training, allowing your team to focus on program delivery rather than wrestling with technology.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">02</span>
+                    <h4>Comprehensive Management</h4>
+                    <p>Manage programs and beneficiaries in one unified platform with detailed tracking of all important information and program associations.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">03</span>
+                    <h4>Accessibility & Flexibility</h4>
+                    <p>Available 24/7 with dark mode support and responsive design for seamless access from any device, anywhere.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">04</span>
+                    <h4>Data-Driven Insights</h3>
+                    <p>Track program performance, beneficiary details, and important timestamps to make informed decisions and optimize your initiatives.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">05</span>
+                    <h4>Rapid Implementation</h4>
+                    <p>Quick setup and easy onboarding process ensures your organization can start managing programs efficiently within days.</p>
+                </div>
+                <div class="reason-item">
+                    <span class="reason-number">06</span>
+                    <h4>Dedicated Support</h4>
+                    <p>Our support team is committed to helping you succeed with responsive assistance and continuous platform improvements.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Commitment Section -->
+        <section class="vision-section commitment-section">
+            <h2>Our Commitment</h2>
+            <p>We are deeply committed to continuous improvement and innovation. We listen to our users, understand the challenges they face, and consistently enhance our platform to address emerging needs. Our goal is not just to provide a tool, but to become a trusted partner in your organization's journey to create meaningful social impact.</p>
+            <p>We believe that technology should serve humanity, and we're dedicated to developing solutions that help organizations and individuals work together more effectively to build stronger, more compassionate communities.</p>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="vision-section cta-section">
+            <h2>Join Us in Making a Difference</h2>
+            <p>Whether you're managing a small community program or a large-scale social welfare initiative, AEDB Database is here to support your mission. Together, we can create lasting positive change.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'home' %}" class="btn btn-primary">Get Started</a>
+                <a href="{% url 'help' %}" class="btn btn-secondary">Learn More</a>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .vision-header {
+        text-align: center;
+        padding: 50px 20px;
+        background: linear-gradient(135deg, var(--button-primary-bg) 0%, #0056b3 100%);
+        color: white;
+        border-radius: 8px;
+        margin-bottom: 50px;
+        box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .vision-header h1 {
+        margin: 0 0 15px 0;
+        font-size: 2.5em;
+        font-weight: bold;
+    }
+
+    .vision-header .tagline {
+        font-size: 1.2em;
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .vision-content {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .vision-section {
+        margin-bottom: 50px;
+        animation: fadeIn 0.6s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Mission and Vision Sections */
+    .mission-section,
+    .vision-statement-section {
+        background-color: var(--card-bg);
+        padding: 35px;
+        border-radius: 8px;
+        border-left: 5px solid var(--button-primary-bg);
+        box-shadow: 0 2px 8px var(--shadow);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .mission-section:hover,
+    .vision-statement-section:hover {
+        box-shadow: 0 4px 12px var(--shadow);
+        transform: translateY(-3px);
+    }
+
+    .section-icon {
+        font-size: 3em;
+        margin-bottom: 15px;
+    }
+
+    .mission-section h2,
+    .vision-statement-section h2 {
+        color: var(--text-primary);
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        margin-top: 0;
+    }
+
+    .mission-section p,
+    .vision-statement-section p {
+        color: var(--text-primary);
+        font-size: 1.05em;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    /* Values Section */
+    .values-section h2 {
+        color: var(--text-primary);
+        font-size: 1.8em;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .value-card {
+        background-color: var(--card-bg);
+        padding: 25px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .value-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 16px var(--shadow);
+        border-color: var(--button-primary-bg);
+    }
+
+    .value-icon {
+        font-size: 2.5em;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .value-card h3 {
+        color: var(--button-primary-bg);
+        margin: 15px 0;
+        font-size: 1.3em;
+    }
+
+    .value-card p {
+        color: var(--text-primary);
+        line-height: 1.6;
+        margin: 0;
+        font-size: 0.95em;
+    }
+
+    /* Why Us Section */
+    .why-us-section h2,
+    .commitment-section h2,
+    .cta-section h2 {
+        color: var(--text-primary);
+        font-size: 1.8em;
+        margin-bottom: 30px;
+        text-align: center;
+        padding-bottom: 15px;
+        border-bottom: 3px solid var(--button-primary-bg);
+    }
+
+    .reasons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .reason-item {
+        background-color: var(--card-bg);
+        padding: 25px;
+        border-radius: 8px;
+        border-top: 4px solid var(--button-primary-bg);
+        box-shadow: 0 2px 8px var(--shadow);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .reason-item:hover {
+        box-shadow: 0 6px 16px var(--shadow);
+        transform: translateY(-5px);
+    }
+
+    .reason-number {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.8em;
+        color: var(--button-primary-bg);
+        opacity: 0.3;
+        font-weight: bold;
+    }
+
+    .reason-item h4 {
+        color: var(--button-primary-bg);
+        margin: 0 0 15px 0;
+        font-size: 1.1em;
+    }
+
+    .reason-item p {
+        color: var(--text-primary);
+        margin: 0;
+        line-height: 1.6;
+        font-size: 0.95em;
+    }
+
+    /* Commitment Section */
+    .commitment-section {
+        background-color: var(--bg-secondary);
+        padding: 35px;
+        border-radius: 8px;
+        border-left: 5px solid var(--button-primary-bg);
+    }
+
+    .commitment-section p {
+        color: var(--text-primary);
+        line-height: 1.8;
+        font-size: 1.05em;
+        margin-bottom: 15px;
+    }
+
+    .commitment-section p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, var(--button-primary-bg) 0%, #0056b3 100%);
+        color: white;
+        padding: 50px 35px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .cta-section h2 {
+        color: white;
+        border-color: white;
+        border-bottom-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .cta-section p {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1.1em;
+        line-height: 1.8;
+        margin-bottom: 30px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cta-buttons .btn {
+        padding: 12px 30px;
+        font-size: 1.05em;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .cta-buttons .btn-primary {
+        background-color: white;
+        color: var(--button-primary-bg);
+    }
+
+    .cta-buttons .btn-primary:hover {
+        background-color: #f0f0f0;
+        transform: translateY(-2px);
+    }
+
+    .cta-buttons .btn-secondary {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid white;
+    }
+
+    .cta-buttons .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .vision-header {
+            padding: 35px 20px;
+        }
+
+        .vision-header h1 {
+            font-size: 1.8em;
+        }
+
+        .vision-header .tagline {
+            font-size: 1em;
+        }
+
+        .mission-section,
+        .vision-statement-section,
+        .commitment-section {
+            padding: 25px;
+        }
+
+        .mission-section h2,
+        .vision-statement-section h2 {
+            font-size: 1.4em;
+        }
+
+        .why-us-section h2,
+        .commitment-section h2,
+        .cta-section h2 {
+            font-size: 1.4em;
+        }
+
+        .values-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .reasons-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .value-card,
+        .reason-item {
+            padding: 20px;
+        }
+
+        .section-icon {
+            font-size: 2.5em;
+        }
+
+        .cta-section {
+            padding: 30px 20px;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+        }
+
+        .cta-buttons .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
