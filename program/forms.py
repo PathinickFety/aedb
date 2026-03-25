@@ -13,7 +13,16 @@ class ProgramForm(forms.ModelForm):
             'time': forms.TimeInput(attrs={'type': 'time'}),
             'place': forms.TextInput(attrs={'placeholder': 'Location'}),
             'responsible': forms.TextInput(attrs={'placeholder': 'Responsible Person'}),
-            'beneficiaries': forms.CheckboxSelectMultiple(),
+            'beneficiaries': forms.SelectMultiple(attrs={
+                'class': 'beneficiaries-select2',
+                'style': 'width: 100%;',
+                'data-ajax--url': '/search-beneficiaries/',
+                'data-ajax--type': 'GET',
+                'data-ajax--cache': 'true',
+                'data-placeholder': 'Search beneficiary by name, phone, or category...',
+                'data-allow-clear': 'true',
+                'data-minimum-input-length': '1',
+            }),
             'notes': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Notes (optional)'}),
             'is_finished': forms.CheckboxInput(),
         }

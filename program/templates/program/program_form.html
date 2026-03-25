@@ -4,6 +4,52 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+    .select2-container--default .select2-selection--multiple {
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        border-radius: 4px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 3px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: white;
+        margin-right: 5px;
+    }
+
+    .select2-dropdown {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+    }
+
+    .select2-container--default .select2-results__option {
+        color: var(--text-color);
+    }
+
+    .select2-container--default .select2-results__option--highlighted {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .select2-container--default .select2-search__field {
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+    }
+</style>
+
 <div class="form-container">
     <div class="form-wrapper">
         <h2>{{ title }}</h2>
@@ -26,76 +72,9 @@
                             {{ field }}
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         </div>
-                    {% elif field.field.widget.input_type == 'checkboxselectmultiple' %}
-                        <label>{{ field.label }}</label>
-                        
-                        <!-- Category Filter -->
-                        <div class="category-filter-section" style="margin-bottom: 20px;">
-                            <label for="category_filter">Filter by Category:</label>
-                            <select id="category_filter" class="category-filter-select" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text-color);">
-                                <option value="">All Categories</option>
-                                <option value="poor">Poor People</option>
-                                <option value="staff">Staff Member</option>
-                                <option value="student">Madrassat Student</option>
-                                <option value="teacher">Oustadh</option>
-                                <option value="elder">Elder</option>
-                                <option value="orphan">Orphan kid</option>
-                                <option value="sick">Sick Person</option>
-                                <option value="disabled">Disabled Person</option>
-                                <option value="widow">Widow</option>
-                                <option value="refugee">Refugee</option>
-                                <option value="family">Family member</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        
-                        <div class="beneficiaries-list">
-                            {% for choice in field %}
-                                <div class="checkbox-field" data-category="{{ choice.choice_label|lower }}">
-                                    {{ choice.tag }}
-                                    <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const categoryFilter = document.getElementById('category_filter');
-                                const beneficiariesList = document.querySelectorAll('.checkbox-field[data-category]');
-                                
-                                // Extract category from beneficiary display text (format: "Name - Category")
-                                beneficiariesList.forEach(item => {
-                                    const label = item.querySelector('label');
-                                    if (label) {
-                                        const text = label.textContent;
-                                        // Extract category from the choice_label format
-                                        if (text.includes(' - ')) {
-                                            const category = text.split(' - ')[1].toLowerCase().trim();
-                                            item.dataset.category = category;
-                                        }
-                                    }
-                                });
-                                
-                                categoryFilter.addEventListener('change', function() {
-                                    const selectedCategory = this.value.toLowerCase();
-                                    
-                                    beneficiariesList.forEach(item => {
-                                        if (selectedCategory === '') {
-                                            // Show all
-                                            item.style.display = 'flex';
-                                        } else {
-                                            // Show only matching category
-                                            const itemCategory = item.dataset.category;
-                                            if (itemCategory.includes(selectedCategory)) {
-                                                item.style.display = 'flex';
-                                            } else {
-                                                item.style.display = 'none';
-                                            }
-                                        }
-                                    });
-                                });
-                            });
-                        </script>
+                    {% elif field.name == 'beneficiaries' %}
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
                     {% else %}
                         {{ field.label_tag }}
                         {{ field }}
@@ -118,4 +97,51 @@
         </form>
     </div>
 </div>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for beneficiaries field
+    $('.beneficiaries-select2').select2({
+        ajax: {
+            url: '/search-beneficiaries/',
+            type: 'GET',
+            dataType: 'json',
+            delay: 250,
+            cache: true,
+            data: function(params) {
+                return {
+                    q: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function(data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.results,
+                    pagination: data.pagination
+                };
+            },
+            error: function() {
+                console.log('Error searching beneficiaries');
+            }
+        },
+        placeholder: 'Search beneficiary by name, phone, or category...',
+        minimumInputLength: 1,
+        width: '100%',
+        allowClear: true,
+        tags: false,
+        tokenSeparators: [','],
+        closeOnSelect: false
+    });
+
+    // Prevent placeholder from disappearing when form loads with existing values
+    $('.beneficiaries-select2').on('change', function() {
+        // Trigger change event for form submission
+    });
+});
+</script>
 {% endblock %}

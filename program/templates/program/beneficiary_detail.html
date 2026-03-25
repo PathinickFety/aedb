@@ -3,6 +3,207 @@
 {% block title %}{{ beneficiary.full_name }}{% endblock %}
 
 {% block content %}
+<style>
+    .content-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .beneficiary-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .beneficiary-header h1 {
+        font-size: 2.5rem;
+        color: var(--text-color);
+        margin-bottom: 10px;
+    }
+
+    .beneficiary-header .category {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        background-color: var(--primary-color);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .beneficiary-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .beneficiary-info h3 {
+        color: var(--text-color);
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 8px;
+        margin: 30px 0 15px 0;
+    }
+
+    .beneficiary-info p {
+        margin: 8px 0;
+        line-height: 1.6;
+    }
+
+    .beneficiary-photo {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .beneficiary-photo img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 3px solid var(--border-color);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .beneficiary-photo .no-photo {
+        width: 150px;
+        height: 150px;
+        background-color: var(--input-bg);
+        border: 3px solid var(--border-color);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        margin: 0 auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .beneficiary-programs {
+        margin: 40px 0;
+    }
+
+    .beneficiary-programs h3 {
+        color: var(--text-color);
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+    }
+
+    .programs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .program-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .program-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color);
+    }
+
+    .program-card.program-finished {
+        background-color: rgba(220, 53, 69, 0.05);
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+
+    .program-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .program-header h4 {
+        margin: 0;
+        color: var(--text-color);
+        font-size: 1.3rem;
+    }
+
+    .finished-badge {
+        background-color: var(--button-danger-bg);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .program-details p {
+        margin: 6px 0;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .program-details strong {
+        color: var(--text-color);
+        display: inline-block;
+        min-width: 100px;
+    }
+
+    .program-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: center;
+    }
+
+    .program-actions .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .no-programs {
+        text-align: center;
+        color: var(--text-secondary);
+        font-style: italic;
+        padding: 40px;
+        background-color: var(--input-bg);
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+
+    hr {
+        border: none;
+        height: 1px;
+        background-color: var(--border-color);
+        margin: 40px 0;
+    }
+
+    @media (max-width: 768px) {
+        .content-container {
+            padding: 15px;
+        }
+
+        .beneficiary-header h1 {
+            font-size: 2rem;
+        }
+
+        .programs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .beneficiary-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .program-actions {
+            flex-direction: column;
+        }
+    }
+</style>
 <div class="content-container">
     <div class="beneficiary-header">
         <h1>{{ beneficiary.full_name }}</h1>
@@ -54,6 +255,46 @@
         {% if beneficiary.remarks %}
             <h3>Remarks</h3>
             <p>{{ beneficiary.remarks }}</p>
+        {% endif %}
+    </div>
+    
+    <hr>
+    
+    <div class="beneficiary-programs">
+        <h3>Enrolled Programs</h3>
+        <p class="ticket-reminder" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; padding: 10px; background-color: rgba(255, 193, 7, 0.1); border-radius: 6px; border-left: 3px solid #ffc107;">
+            <strong>💡 Important:</strong> Download and print your program tickets. Bring them on the day of distribution as proof of participation.
+        </p>
+        {% if programs %}
+            <div class="programs-grid">
+                {% for program in programs %}
+                    <div class="program-card {% if program.is_finished %}program-finished{% endif %}">
+                        <div class="program-header">
+                            <h4>{{ program.name }}</h4>
+                            {% if program.is_finished %}
+                                <span class="finished-badge">✓ Finished</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="program-details">
+                            <p><strong>Type:</strong> {{ program.get_program_type_display }}</p>
+                            <p><strong>Date:</strong> {{ program.date|date:"F j, Y" }}</p>
+                            <p><strong>Time:</strong> {{ program.time|time:"g:i A" }}</p>
+                            <p><strong>Location:</strong> {{ program.place }}</p>
+                            <p><strong>Responsible:</strong> {{ program.responsible }}</p>
+                        </div>
+                        
+                        <div class="program-actions">
+                            <a href="{% url 'beneficiary_ticket' beneficiary_id=beneficiary.id program_id=program.id %}" 
+                               class="btn btn-primary" target="_blank">View Ticket</a>
+                            <a href="{% url 'beneficiary_ticket' beneficiary_id=beneficiary.id program_id=program.id %}?print=1" 
+                               class="btn btn-secondary" target="_blank">Print Ticket</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-programs">This beneficiary is not enrolled in any programs yet.</p>
         {% endif %}
     </div>
     

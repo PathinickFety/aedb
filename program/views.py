@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.http import require_http_methods
+from django.template.loader import render_to_string
+from django.utils import timezone
 from .models import Program, Beneficiary
 from .forms import ProgramForm, BeneficiaryForm
 
@@ -160,9 +164,11 @@ def program_delete(request, id):
 def beneficiary_detail(request, id):
     """View beneficiary details"""
     beneficiary = Beneficiary.objects.get(id=id)
+    programs = beneficiary.programs.all().order_by('-date')
 
     context = {
         'beneficiary': beneficiary,
+        'programs': programs,
     }
     return render(request, 'program/beneficiary_detail.html', context)
 
@@ -232,4 +238,81 @@ def help(request):
 
 def upcoming_updates(request):
     """Upcoming updates page"""
-    return render(request, 'program/upcoming_update.html') 
+    return render(request, 'program/upcoming_update.html')
+
+
+# =====================
+# AJAX API ENDPOINTS
+# =====================
+
+@require_http_methods(["GET"])
+def search_beneficiaries_ajax(request):
+    """AJAX endpoint to search beneficiaries for Select2"""
+    search_query = request.GET.get('q', '').strip()
+    page = int(request.GET.get('page', 1))
+    results_per_page = 20
+    
+    # Build queryset
+    beneficiaries = Beneficiary.objects.all()
+    
+    # Filter by search query if provided
+    if search_query:
+        beneficiaries = beneficiaries.filter(
+            Q(full_name__icontains=search_query) |
+            Q(phone1__icontains=search_query) |
+            Q(phone2__icontains=search_query) |
+            Q(phone3__icontains=search_query) |
+            Q(category__icontains=search_query)
+        )
+    
+    # Calculate pagination
+    total_count = beneficiaries.count()
+    start = (page - 1) * results_per_page
+    end = start + results_per_page
+    
+    # Get paginated results
+    paginated_beneficiaries = beneficiaries[start:end]
+    
+    # Format response for Select2
+    results = []
+    for beneficiary in paginated_beneficiaries:
+        results.append({
+            'id': beneficiary.id,
+            'text': f"{beneficiary.full_name} ({beneficiary.category}) - {beneficiary.phone1}"
+        })
+    
+    return JsonResponse({
+        'results': results,
+        'pagination': {
+            'more': end < total_count
+        }
+    })
+
+
+# =====================
+# TICKET VIEWS
+# =====================
+
+def beneficiary_ticket(request, beneficiary_id, program_id):
+    """Generate a printable ticket for a beneficiary's program participation"""
+    beneficiary = get_object_or_404(Beneficiary, id=beneficiary_id)
+    program = get_object_or_404(Program, id=program_id)
+    
+    # Check if beneficiary is actually enrolled in this program
+    if not program.beneficiaries.filter(id=beneficiary_id).exists():
+        messages.error(request, 'This beneficiary is not enrolled in the selected program.')
+        return redirect('beneficiary_detail', id=beneficiary_id)
+    
+    context = {
+        'beneficiary': beneficiary,
+        'program': program,
+        'ticket_number': f"{program.id:04d}-{beneficiary.id:04d}",
+        'generated_at': timezone.now(),
+    }
+    
+    # If it's a print request, render the print template
+    if request.GET.get('print') == '1':
+        return render(request, 'program/ticket_print.html', context)
+    
+    # Otherwise, show the ticket preview
+    return render(request, 'program/ticket.html', context) 

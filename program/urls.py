@@ -20,4 +20,10 @@ urlpatterns = [
     path('beneficiaries/create/', views.beneficiary_create, name='beneficiary_create'),
     path('beneficiaries/<int:id>/edit/', views.beneficiary_update, name='beneficiary_update'),
     path('beneficiaries/<int:id>/delete/', views.beneficiary_delete, name='beneficiary_delete'),
+
+    # Ticket URLs
+    path('beneficiaries/<int:beneficiary_id>/ticket/<int:program_id>/', views.beneficiary_ticket, name='beneficiary_ticket'),
+
+    # AJAX API Endpoints
+    path('search-beneficiaries/', views.search_beneficiaries_ajax, name='search_beneficiaries_ajax'),
 ]
