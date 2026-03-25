@@ -1,0 +1,50 @@
+{% extends "navbar.html" %}
+
+{% block title %}Profile - AEDB{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="form-container">
+        <div class="form-card">
+            <h2>Your Profile</h2>
+            <p class="form-subtitle">Manage your account information</p>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" value="{{ user.username }}" disabled class="form-control">
+                    <small class="form-help">Username cannot be changed</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Date Joined</label>
+                    <input type="text" value="{{ user.date_joined|date:'F j, Y' }}" disabled class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+
+            <div class="profile-actions">
+                <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

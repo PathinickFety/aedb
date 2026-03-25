@@ -19,10 +19,22 @@
                 <li><a href="{% url 'our_vision' %}">Our vision</a></li>
                 <li><a href="{% url 'help' %}">Help</a></li>
                 <li><a href="{% url 'upcoming_updates' %}">Upcoming Updates</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                {% endif %}
             </ul>
-            <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
-                <span class="theme-icon">🌙</span>
-            </button>
+            <div class="navbar-auth">
+                {% if user.is_authenticated %}
+                    <span class="user-greeting">Hello, {{ user.get_full_name|default:user.username }}</span>
+                    <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-secondary btn-sm">Register</a>
+                {% endif %}
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
         </div>
     </nav>
 

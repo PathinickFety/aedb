@@ -621,6 +621,139 @@ hr {
     color: var(--text-secondary);
 }
 
+/* ===================== */
+/* AUTHENTICATION STYLES */
+/* ===================== */
+
+.navbar-auth {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-greeting {
+    color: var(--navbar-text);
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 20px;
+}
+
+.form-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px var(--shadow);
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-card h2 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.form-subtitle {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-control {
+    padding: 10px 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--button-primary-bg);
+}
+
+.form-control:disabled {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+.form-help {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.field-errors {
+    margin-top: 5px;
+}
+
+.error {
+    color: var(--alert-danger-text);
+    font-size: 12px;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.auth-links p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.auth-links a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+.profile-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Button size variants */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
 .beneficiary-photo.no-photo::before {
     content: "👤";
 }

@@ -5,8 +5,76 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from .models import Program, Beneficiary
 from .forms import ProgramForm, BeneficiaryForm
+
+
+# =====================
+# AUTHENTICATION VIEWS
+# =====================
+
+def register_view(request):
+    """User registration view"""
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Welcome {user.username}! Your account has been created successfully.')
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'program/register.html', {'form': form})
+
+
+def login_view(request):
+    """User login view"""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Welcome back, {username}!')
+                next_url = request.GET.get('next', 'home')
+                return redirect(next_url)
+            else:
+                messages.error(request, 'Invalid username or password.')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'program/login.html', {'form': form})
+
+
+def logout_view(request):
+    """User logout view"""
+    logout(request)
+    messages.info(request, 'You have been logged out successfully.')
+    return redirect('home')
+
+
+@login_required
+def profile_view(request):
+    """User profile view"""
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        user.save()
+        messages.success(request, 'Your profile has been updated successfully.')
+        return redirect('profile')
+    
+    return render(request, 'program/profile.html', {
+        'user': request.user
+    })
 
 
 # =====================
