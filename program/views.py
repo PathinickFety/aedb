@@ -308,6 +308,7 @@ def beneficiary_ticket(request, beneficiary_id, program_id):
         'program': program,
         'ticket_number': f"{program.id:04d}-{beneficiary.id:04d}",
         'generated_at': timezone.now(),
+        'auto_print': request.GET.get('print') == '1',  # Enable auto-print only for actual print requests
     }
     
     # If it's a print request, render the print template

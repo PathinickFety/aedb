@@ -222,8 +222,8 @@
         <!-- Ticket Header -->
         <div class="ticket-header">
             <h1 class="ticket-title">🎫 Program Participation Ticket</h1>
-            <p class="ticket-subtitle">AEDB - Aid and Education Database</p>
-            <div class="ticket-number">Ticket #{{ ticket_number }}</div>
+            <p class="ticket-subtitle">AED - Association pour l'Education et le Dévelopment</p>
+            <div class="ticket-number">Ticket N°:{{ ticket_number }}</div>
         </div>
 
         <!-- Ticket Content -->
@@ -232,29 +232,29 @@
             <div class="ticket-section">
                 <h3 class="section-title">👤 Beneficiary Information</h3>
                 <div class="ticket-info">
-                    <p><strong>Full Name:</strong> {{ beneficiary.full_name }}</p>
+                    <p><strong>Nom complet:</strong> {{ beneficiary.full_name }}</p>
                     {% if beneficiary.date_of_birth %}
-                        <p><strong>Date of Birth:</strong> {{ beneficiary.date_of_birth|date:"M j, Y" }}</p>
+                        <p><strong>Date de Naissance:</strong> {{ beneficiary.date_of_birth|date:"M j, Y" }}</p>
                     {% endif %}
                     {% if beneficiary.age %}
                         <p><strong>Age:</strong> {{ beneficiary.age }} years</p>
                     {% endif %}
-                    <p><strong>Category:</strong> {{ beneficiary.get_category_display }}</p>
-                    <p><strong>Primary Phone:</strong> {{ beneficiary.phone1 }}</p>
+                    <p><strong>Categorie:</strong> {{ beneficiary.get_category_display }}</p>
+                    <p><strong>Telephone 1:</strong> {{ beneficiary.phone1 }}</p>
                     {% if beneficiary.phone2 %}
-                        <p><strong>Secondary Phone:</strong> {{ beneficiary.phone2 }}</p>
+                        <p><strong>Telephone 2:</strong> {{ beneficiary.phone2 }}</p>
                     {% endif %}
                     {% if beneficiary.phone3 %}
-                        <p><strong>Tertiary Phone:</strong> {{ beneficiary.phone3 }}</p>
+                        <p><strong>Telephone 3:</strong> {{ beneficiary.phone3 }}</p>
                     {% endif %}
                     <p><strong>Address:</strong> {{ beneficiary.address }}</p>
                     {% if beneficiary.family_size %}
-                        <p><strong>Family Size:</strong> {{ beneficiary.family_size }} members</p>
+                        <p><strong>Nombre des Familles:</strong> {{ beneficiary.family_size }} members</p>
                     {% endif %}
-                    <p><strong>Urgent Need:</strong> {% if beneficiary.is_needed_person %}Yes{% else %}No{% endif %}</p>
-                    <p><strong>Serious Case:</strong> {% if beneficiary.is_serious %}Yes{% else %}No{% endif %}</p>
+                    <p><strong>In Need:</strong> {% if beneficiary.is_needed_person %}Yes{% else %}No{% endif %}</p>
+                    <p><strong>Serious:</strong> {% if beneficiary.is_serious %}Yes{% else %}No{% endif %}</p>
                     {% if beneficiary.phone2 %}
-                        <p><strong>Emergency Contact:</strong> {{ beneficiary.phone2 }}</p>
+                        <p><strong>Contact d'Urgence:</strong> {{ beneficiary.phone2 }}</p>
                     {% endif %}
                 </div>
 
@@ -272,9 +272,9 @@
                     <strong style="font-size: 0.9rem;">🎫 Ticket Status:</strong>
                     <p style="margin: 4px 0; font-size: 0.85rem; color: {% if program.is_finished %}var(--button-danger-bg){% else %}var(--button-primary-bg){% endif %};">
                         {% if program.is_finished %}
-                            ✓ Program Completed - Ticket Used
+                            ✓ Programme Completed - Ticket Expired
                         {% else %}
-                            ⏳ Valid for Upcoming Program
+                            ⏳ Validé pour le programme à venir - Ticket Actif
                         {% endif %}
                     </p>
                 </div>
@@ -284,12 +284,12 @@
             <div class="ticket-section">
                 <h3 class="section-title">📋 Program Information</h3>
                 <div class="ticket-info">
-                    <p><strong>Program Name:</strong> {{ program.name }}</p>
-                    <p><strong>Program Type:</strong> {{ program.get_program_type_display }}</p>
+                    <p><strong>Nom du Programme:</strong> {{ program.name }}</p>
+                    <p><strong>Type de Programme:</strong> {{ program.get_program_type_display }}</p>
                     <p><strong>Date:</strong> {{ program.date|date:"l, F j, Y" }}</p>
-                    <p><strong>Time:</strong> {{ program.time|time:"g:i A" }}</p>
-                    <p><strong>Location:</strong> {{ program.place }}</p>
-                    <p><strong>Responsible:</strong> {{ program.responsible }}</p>
+                    <p><strong>Heure:</strong> {{ program.time|time:"g:i A" }}</p>
+                    <p><strong>Localisation:</strong> {{ program.place }}</p>
+                    <p><strong>Responsable:</strong> {{ program.responsible }}</p>
                     {% if program.notes %}
                         <p><strong>Notes:</strong> {{ program.notes }}</p>
                     {% endif %}
@@ -303,12 +303,12 @@
                     
                     <!-- Program Requirements -->
                     <div style="margin-top: 15px; padding: 10px; background-color: var(--input-bg); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <strong style="font-size: 0.9rem;">📋 Program Requirements:</strong>
+                        <strong style="font-size: 0.9rem;">📋 Exigences du programme :</strong>
                         <ul style="margin: 8px 0; padding-left: 20px; font-size: 0.85rem; color: var(--text-secondary);">
-                            <li>Valid ID required for verification</li>
-                            <li>Arrive 15 minutes before program start time</li>
-                            <li>Bring this printed ticket</li>
-                            <li>Follow all program guidelines and instructions</li>
+                            <li>Une pièce d'identité valide est requise pour la vérification.</li>
+                            <li>Veuillez arriver 15 minutes avant le début du programme.</li>
+                            <li>Apportez ce ticket imprimé</li>
+                            <li>Suivez toutes les directives et instructions du programme</li>
                         </ul>
                     </div>
                     
@@ -329,19 +329,19 @@
 
         <!-- Ticket Footer -->
         <div class="ticket-footer">
-            <p><strong>Generated on:</strong> {{ generated_at|date:"F j, Y \a\t g:i A" }}</p>
-            <p><em>This ticket serves as proof of participation in the AEDB program.</em></p>
-            <p><em>Please bring this ticket to the program venue.</em></p>
+            <p><strong>Généré le:</strong> {{ generated_at|date:"F j, Y \a\t g:i A" }}</p>
+            <p><em>Ce ticket sert de preuve de participation au programme AEDB.</em></p>
+            <p><em>Veuillez apporter ce ticket au lieu du programme.</em></p>
             
             <!-- Terms and Conditions -->
             <div style="margin-top: 15px; padding: 12px; background-color: var(--input-bg); border-radius: 6px; border: 1px solid var(--border-color);">
                 <strong style="font-size: 0.9rem;">📜 Terms & Conditions:</strong>
                 <ul style="margin: 8px 0; padding-left: 20px; font-size: 0.8rem; color: var(--text-secondary);">
-                    <li>This ticket is non-transferable and valid only for the named beneficiary</li>
-                    <li>AEDB reserves the right to verify beneficiary information and eligibility</li>
-                    <li>Assistance is provided based on program eligibility criteria</li>
-                    <li>Lost or damaged tickets will not be replaced</li>
-                    <li>Beneficiaries must comply with all program rules and guidelines</li>
+                    <li>Ce billet est nominatif et non cessible, et valable uniquement pour le bénéficiaire désigné.</li>
+                    <li>L'AEDB se réserve le droit de vérifier les informations et l'admissibilité des bénéficiaires.</li>
+                    <li>L'aide est fournie en fonction des critères d'admissibilité au programme.</li>
+                    <li>Les billets perdus ou endommagés ne seront pas remplacés.</li>
+                    <li>Les bénéficiaires doivent respecter toutes les règles et directives du programme.</li>
                 </ul>
             </div>
         </div>
@@ -356,11 +356,11 @@
 
     <!-- AEDB Contact Information -->
     <div class="contact-info">
-        <h4>📞 AEDB Contact Information</h4>
-        <p><strong>Organization:</strong> Aid and Education Database (AEDB)</p>
+        <h4>📞 AED Contact Information</h4>
+        <p><strong>Organisation:</strong> Association pour l'Éducation et le Développement (AED)</p>
         <p><strong>Emergency Contact:</strong> +1-234-567-8900</p>
-        <p><strong>Email:</strong> support@aedb.org</p>
-        <p><strong>Website:</strong> www.aedb.org</p>
+        <p><strong>Email:</strong> aedmdg@gmail.com</p>
+        <p><strong>Telephone:</strong> +261 88 019 41</p>
     </div>
 
     <!-- Action Buttons -->

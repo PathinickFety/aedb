@@ -344,10 +344,12 @@
     </div>
 
     <script>
-        // Auto-print when loaded
+        // Auto-print only when explicitly requested (for production use)
+        {% if auto_print %}
         window.onload = function() {
             window.print();
         };
+        {% endif %}
     </script>
 </body>
 </html>
