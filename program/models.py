@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.contrib.auth.models import User
 
 
 # -------------------------
@@ -113,3 +114,48 @@ class Program(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.date}"
+
+
+# -------------------------  
+# PROGRAM INTERACTION MODELS
+# -------------------------
+
+class ProgramLike(models.Model):
+    """Model for program likes"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'program']  # One like per user per program
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.program.name}"
+
+
+class ProgramComment(models.Model):
+    """Model for program comments"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.program.name}"
+
+
+class ProgramShare(models.Model):
+    """Model for program shares"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'program']  # One share per user per program
+
+    def __str__(self):
+        return f"{self.user.username} shared {self.program.name}"

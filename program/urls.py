@@ -27,6 +27,12 @@ urlpatterns = [
     path('beneficiaries/<int:id>/edit/', views.beneficiary_update, name='beneficiary_update'),
     path('beneficiaries/<int:id>/delete/', views.beneficiary_delete, name='beneficiary_delete'),
 
+    # Program interaction URLs
+    path('programs/<int:program_id>/like/', views.program_like, name='program_like'),
+    path('programs/<int:program_id>/comment/', views.program_comment, name='program_comment'),
+    path('programs/<int:program_id>/share/', views.program_share, name='program_share'),
+    path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+
     # Ticket URLs
     path('beneficiaries/<int:beneficiary_id>/ticket/<int:program_id>/', views.beneficiary_ticket, name='beneficiary_ticket'),
 

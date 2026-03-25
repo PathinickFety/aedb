@@ -754,6 +754,144 @@ hr {
     font-size: 12px;
 }
 
+/* ===================== */
+/* PROGRAM INTERACTIONS */
+/* ===================== */
+
+.program-interactions {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.interaction-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.interaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.interaction-btn:hover {
+    background-color: var(--button-primary-bg);
+    color: white;
+    border-color: var(--button-primary-bg);
+}
+
+.interaction-btn.liked {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.interaction-btn.shared {
+    background-color: #27ae60;
+    color: white;
+    border-color: #27ae60;
+}
+
+.interaction-icon {
+    font-size: 16px;
+}
+
+.interaction-count {
+    font-weight: bold;
+}
+
+/* Comments Section */
+.comments-section h3 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.add-comment {
+    margin-bottom: 20px;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.comment-form textarea {
+    padding: 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--button-primary-bg);
+}
+
+.comments-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.comment {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-header strong {
+    color: var(--text-primary);
+}
+
+.comment-date {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.delete-comment-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-comment-btn:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.comment-content {
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
 .beneficiary-photo.no-photo::before {
     content: "👤";
 }

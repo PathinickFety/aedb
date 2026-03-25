@@ -8,18 +8,46 @@
         <p class="hero-subtitle">Manage your programs and beneficiaries efficiently and effectively</p>
         
         <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-number">{{ programs.count }}</div>
-                <div class="stat-label">Programs</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ beneficiaries.count }}</div>
-                <div class="stat-label">Beneficiaries</div>
-            </div>
+            {% if is_authenticated %}
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_programs }}</div>
+                    <div class="stat-label">Total Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.active_programs }}</div>
+                    <div class="stat-label">Active Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.finished_programs }}</div>
+                    <div class="stat-label">Finished Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_beneficiaries }}</div>
+                    <div class="stat-label">Beneficiaries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_likes }}</div>
+                    <div class="stat-label">Total Likes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_comments }}</div>
+                    <div class="stat-label">Comments</div>
+                </div>
+            {% else %}
+                <div class="stat-card">
+                    <div class="stat-number">{{ programs.count }}</div>
+                    <div class="stat-label">Active Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ beneficiaries.count }}</div>
+                    <div class="stat-label">Beneficiaries</div>
+                </div>
+            {% endif %}
         </div>
     </div>
 
     <!-- Quick Action Buttons -->
+    {% if user.is_authenticated %}
     <div class="quick-actions">
         <a href="{% url 'program_create' %}" class="action-card create-program">
             <div class="action-icon">📋</div>
@@ -36,6 +64,7 @@
             </div>
         </a>
     </div>
+    {% endif %}
 
     <!-- Search Section -->
     <div class="search-section">
