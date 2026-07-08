@@ -1,0 +1,61 @@
+{% extends "program/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if action == 'approve' %}Approve{% else %}Reject{% endif %} Beneficiary Verification
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>
+            {% if action == 'approve' %}✅ Approve{% else %}❌ Reject{% endif %} 
+            Beneficiary Verification
+        </h1>
+        
+        <div class="verification-info" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3>Verification Request Details</h3>
+            <p><strong>Beneficiary:</strong> {{ verification.beneficiary.full_name }}</p>
+            <p><strong>Category:</strong> {{ verification.beneficiary.get_category_display }}</p>
+            <p><strong>Phone:</strong> {{ verification.beneficiary.phone1 }}</p>
+            <p><strong>Address:</strong> {{ verification.beneficiary.address }}</p>
+            <p><strong>Requested:</strong> {{ verification.created_at|date:"M j, Y g:i A" }}</p>
+            {% if verification.verification_notes %}
+                <p><strong>Request Notes:</strong> {{ verification.verification_notes }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="alert {% if action == 'approve' %}alert-success{% else %}alert-warning{% endif %}">
+            <h4>Are you sure you want to 
+                {% if action == 'approve' %}approve{% else %}reject{% endif %} 
+                this verification request?
+            </h4>
+            {% if action == 'approve' %}
+                <p>This will mark the beneficiary as verified and update their status.</p>
+            {% else %}
+                <p>This will reject the verification request. The beneficiary will remain unverified.</p>
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="verification_notes">
+                    {% if action == 'approve' %}Approval{% else %}Rejection{% endif %} Notes
+                </label>
+                <textarea name="verification_notes" id="verification_notes" rows="4" 
+                          placeholder="Add notes explaining your {% if action == 'approve' %}approval{% else %}rejection{% endif %} decision..." 
+                          class="form-control" required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn {% if action == 'approve' %}btn-success{% else %}btn-danger{% endif %}">
+                    {% if action == 'approve' %}✅ Approve Verification{% else %}❌ Reject Verification{% endif %}
+                </button>
+                <a href="{% url 'beneficiary_detail' verification.beneficiary.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -31,7 +31,7 @@ class ProgramForm(forms.ModelForm):
 class BeneficiaryForm(forms.ModelForm):
     class Meta:
         model = Beneficiary
-        fields = ['full_name', 'date_of_birth', 'age', 'phone1', 'phone2', 'phone3', 'address', 'family_size', 'photo', 'category', 'remarks', 'is_needed_person', 'is_serious']
+        fields = ['full_name', 'date_of_birth', 'age', 'phone1', 'phone2', 'phone3', 'address', 'family_size', 'photo', 'category', 'remarks', 'is_needed_person', 'is_serious', 'is_muslim', 'is_verified']
         widgets = {
             'full_name': forms.TextInput(attrs={'placeholder': 'Full Name'}),
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
@@ -46,4 +46,6 @@ class BeneficiaryForm(forms.ModelForm):
             'remarks': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Remarks (optional)'}),
             'is_needed_person': forms.CheckboxInput(),
             'is_serious': forms.CheckboxInput(),
+            'is_muslim': forms.CheckboxInput(),
+            'is_verified': forms.CheckboxInput(),
         }

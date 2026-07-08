@@ -1,4 +1,5 @@
 {% extends "navbar.html" %}
+{% load program_tags %}
 
 {% block title %}{{ beneficiary.full_name }}{% endblock %}
 
@@ -247,10 +248,49 @@
             <div class="beneficiary-photo no-photo"></div>
         {% endif %}
         
+        <h3>Verification Status</h3>
+        <div class="verification-status" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p><strong>Current Status:</strong> 
+                {% if beneficiary.verification_status == 'approved' %}
+                    <span style="color: green; font-weight: bold;">✅ Approved</span>
+                {% elif beneficiary.verification_status == 'rejected' %}
+                    <span style="color: red; font-weight: bold;">❌ Rejected</span>
+                {% elif beneficiary.verification_status == 'pending' %}
+                    <span style="color: orange; font-weight: bold;">⏳ Pending Review</span>
+                {% else %}
+                    <span style="color: gray; font-weight: bold;">❓ Unverified</span>
+                {% endif %}
+            </p>
+            
+            {% if beneficiary.latest_verification %}
+                <p><strong>Last Verification:</strong> {{ beneficiary.latest_verification.created_at|date:"M j, Y g:i A" }}</p>
+                {% if beneficiary.latest_verification.verified_by %}
+                    <p><strong>Verified By:</strong> {{ beneficiary.latest_verification.verified_by.get_full_name|default:beneficiary.latest_verification.verified_by.username }}</p>
+                {% endif %}
+                {% if beneficiary.latest_verification.verification_notes %}
+                    <p><strong>Notes:</strong> {{ beneficiary.latest_verification.verification_notes }}</p>
+                {% endif %}
+            {% endif %}
+            
+            {% if user.is_authenticated and user|has_group:"Admin,Staff" %}
+                <div class="verification-actions" style="margin-top: 15px;">
+                    {% if beneficiary.verification_status == 'unverified' %}
+                        <a href="{% url 'beneficiary_verification_create' beneficiary.id %}" class="btn btn-primary btn-sm">Request Verification</a>
+                    {% elif beneficiary.verification_status == 'pending' %}
+                        <p style="color: orange; margin: 0;">Verification request is pending review.</p>
+                    {% else %}
+                        <a href="{% url 'beneficiary_verification_create' beneficiary.id %}" class="btn btn-outline-primary btn-sm">Request Re-verification</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
         <h3>Additional Details</h3>
         <p><strong>Family Size:</strong> {{ beneficiary.family_size|default:"Not provided" }} members</p>
-        <p><strong>Is this person really in Need:</strong> {% if beneficiary.is_needed_person %}Yes{% else %}No{% endif %}</p>
-        <p><strong>Is this person serious:</strong> {% if beneficiary.is_serious %}Yes{% else %}No{% endif %}</p>
+        <p><strong>Verified:</strong> {{ beneficiary.get_verified_emoji }}</p>
+        <p><strong>Really in Need:</strong> {{ beneficiary.get_needed_person_emoji }}</p>
+        <p><strong>Serious & Rule-Following:</strong> {{ beneficiary.get_serious_emoji }}</p>
+        <p><strong>Muslim:</strong> {{ beneficiary.get_muslim_emoji }}</p>
     
         {% if beneficiary.remarks %}
             <h3>Remarks</h3>

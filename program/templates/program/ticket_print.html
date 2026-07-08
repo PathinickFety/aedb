@@ -234,8 +234,10 @@
                     {% if beneficiary.family_size %}
                         <p><strong>Family Size:</strong> {{ beneficiary.family_size }} members</p>
                     {% endif %}
-                    <p><strong>Urgent Need:</strong> {% if beneficiary.is_needed_person %}Yes{% else %}No{% endif %}</p>
-                    <p><strong>Serious Case:</strong> {% if beneficiary.is_serious %}Yes{% else %}No{% endif %}</p>
+                    <p><strong>Verified:</strong> {{ beneficiary.get_verified_emoji }}</p>
+                    <p><strong>Urgent Need:</strong> {{ beneficiary.get_needed_person_emoji }}</p>
+                    <p><strong>Serious Case:</strong> {{ beneficiary.get_serious_emoji }}</p>
+                    <p><strong>Muslim:</strong> {{ beneficiary.get_muslim_emoji }}</p>
                     {% if beneficiary.phone2 %}
                         <p><strong>Emergency Contact:</strong> {{ beneficiary.phone2 }}</p>
                     {% endif %}

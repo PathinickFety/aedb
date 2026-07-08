@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="module aligned">
+    <h2>Role-aware Admin Dashboard</h2>
+    <div class="dashboard-block" style="padding: 10px; background: #f7f9fc; border: 1px solid #dcdfe6; border-radius: 6px; margin-bottom: 16px;">
+        <p><strong>User:</strong> {{ request.user.get_username }}</p>
+        <p><strong>Superuser:</strong> {% if request.user.is_superuser %}Yes{% else %}No{% endif %}</p>
+        <p><strong>Assigned Roles:</strong>
+            {% if request.user.groups.all %}
+                {% for group in request.user.groups.all %}
+                    <span style="padding: 2px 8px; background: #e2e8f0; border-radius: 4px; margin-right: 4px;">{{ group.name }}</span>
+                {% endfor %}
+            {% else %}
+                <span style="color:#777;">None</span>
+            {% endif %}
+        </p>
+
+        <h3 style="margin-top: 10px;">Active permissions</h3>
+        <ul>
+            <li>Add Program: {% if perms.program.add_program %}Yes{% else %}No{% endif %}</li>
+            <li>Change Program: {% if perms.program.change_program %}Yes{% else %}No{% endif %}</li>
+            <li>Delete Program: {% if perms.program.delete_program %}Yes{% else %}No{% endif %}</li>
+            <li>Publish Program: {% if perms.program.can_publish_program %}Yes{% else %}No{% endif %}</li>
+            <li>View Program Stats: {% if perms.program.can_view_program_stats %}Yes{% else %}No{% endif %}</li>
+            <li>Add Beneficiary: {% if perms.program.add_beneficiary %}Yes{% else %}No{% endif %}</li>
+            <li>Change Beneficiary: {% if perms.program.change_beneficiary %}Yes{% else %}No{% endif %}</li>
+            <li>Delete Beneficiary: {% if perms.program.delete_beneficiary %}Yes{% else %}No{% endif %}</li>
+            <li>Verify Beneficiary: {% if perms.program.can_verify_beneficiary %}Yes{% else %}No{% endif %}</li>
+            <li>Mark Serious: {% if perms.program.can_mark_serious %}Yes{% else %}No{% endif %}</li>
+            <li>Mark Muslim: {% if perms.program.can_mark_muslim %}Yes{% else %}No{% endif %}</li>
+        </ul>
+        <h3 style="margin-top: 10px;">Role permissions matrix</h3>
+        <table class="adminlist" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Programs</th>
+                    <th>Beneficiaries</th>
+                    <th>Custom</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Admin</td><td>CRUD ✓</td><td>CRUD ✓</td><td>verify/serious/muslim/publish/stats ✓</td></tr>
+                <tr><td>Staff</td><td>CRUD ✓</td><td>CRUD ✓</td><td>verify/serious/muslim ✓</td></tr>
+                <tr><td>Volunteer</td><td>Read ✓</td><td>Read ✓</td><td>--</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    {% if app_list %}
+        <div id="content-main">
+            {% for app in app_list %}
+                <div class="app-{{ app.app_label }} module">
+                    <table>
+                        <caption><a href="{{ app.app_url }}">{{ app.name }}</a></caption>
+                        {% for model in app.models %}
+                            <tr>
+                                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                                <td>{% if model.admin_url %}<span style="color:#086fa1">Manage</span>{% else %}-{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+

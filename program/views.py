@@ -7,9 +7,28 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from .models import Program, Beneficiary, ProgramLike, ProgramComment, ProgramShare
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User, Group
+
+
+def group_required(*group_names):
+    """Decorator that checks whether a user belongs to specified group(s) or is superuser."""
+    def in_groups(user):
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        return user.groups.filter(name__in=group_names).exists()
+
+    return user_passes_test(in_groups, login_url='login')
+
+
+def ensure_default_groups():
+    """Create default role groups if they are not present."""
+    for group_name in ['Admin', 'Staff', 'Volunteer']:
+        Group.objects.get_or_create(name=group_name)
+
+from .models import Program, Beneficiary, ProgramLike, ProgramComment, ProgramShare, BeneficiaryVerification
 from .forms import ProgramForm, BeneficiaryForm
 
 
@@ -23,6 +42,10 @@ def register_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # Assign new users to Volunteer role by default
+            Group.objects.get_or_create(name='Volunteer')
+            volunteer_group = Group.objects.get(name='Volunteer')
+            user.groups.add(volunteer_group)
             login(request, user)
             messages.success(request, f'Welcome {user.username}! Your account has been created successfully.')
             return redirect('home')
@@ -223,8 +246,10 @@ def program_detail(request, id):
     return render(request, 'program/program_detail.html', context)
 
 
+@group_required('Admin', 'Staff')
 def program_create(request):
     """Create a new program"""
+    ensure_default_groups()
     if not request.user.is_authenticated:
         messages.error(request, 'You must be logged in to create programs.')
         return redirect('login')
@@ -245,8 +270,10 @@ def program_create(request):
     return render(request, 'program/program_form.html', context)
 
 
+@group_required('Admin', 'Staff')
 def program_update(request, id):
     """Update an existing program"""
+    ensure_default_groups()
     if not request.user.is_authenticated:
         messages.error(request, 'You must be logged in to edit programs.')
         return redirect('login')
@@ -270,8 +297,10 @@ def program_update(request, id):
     return render(request, 'program/program_form.html', context)
 
 
+@group_required('Admin', 'Staff')
 def program_delete(request, id):
     """Delete a program"""
+    ensure_default_groups()
     if not request.user.is_authenticated:
         messages.error(request, 'You must be logged in to delete programs.')
         return redirect('login')
@@ -305,8 +334,10 @@ def beneficiary_detail(request, id):
     return render(request, 'program/beneficiary_detail.html', context)
 
 
+@group_required('Admin', 'Staff')
 def beneficiary_create(request):
     """Create a new beneficiary"""
+    ensure_default_groups()
     if request.method == 'POST':
         form = BeneficiaryForm(request.POST, request.FILES)
         if form.is_valid():
@@ -323,8 +354,10 @@ def beneficiary_create(request):
     return render(request, 'program/beneficiary_form.html', context)
 
 
+@group_required('Admin', 'Staff')
 def beneficiary_update(request, id):
     """Update an existing beneficiary"""
+    ensure_default_groups()
     beneficiary = get_object_or_404(Beneficiary, id=id)
     
     if request.method == 'POST':
@@ -344,8 +377,10 @@ def beneficiary_update(request, id):
     return render(request, 'program/beneficiary_form.html', context)
 
 
+@group_required('Admin', 'Staff')
 def beneficiary_delete(request, id):
     """Delete a beneficiary"""
+    ensure_default_groups()
     beneficiary = get_object_or_404(Beneficiary, id=id)
     
     if request.method == 'POST':
@@ -357,6 +392,95 @@ def beneficiary_delete(request, id):
         'beneficiary': beneficiary,
     }
     return render(request, 'program/beneficiary_confirm_delete.html', context)
+
+
+# =====================
+# VERIFICATION VIEWS
+# =====================
+
+@group_required('Admin', 'Staff')
+def beneficiary_verification_create(request, beneficiary_id):
+    """Create a verification request for a beneficiary"""
+    ensure_default_groups()
+    beneficiary = get_object_or_404(Beneficiary, id=beneficiary_id)
+    
+    # Check if there's already a pending verification
+    existing_pending = BeneficiaryVerification.objects.filter(
+        beneficiary=beneficiary, 
+        status='pending'
+    ).exists()
+    
+    if existing_pending:
+        messages.warning(request, 'There is already a pending verification request for this beneficiary.')
+        return redirect('beneficiary_detail', id=beneficiary.id)
+    
+    if request.method == 'POST':
+        verification = BeneficiaryVerification.objects.create(
+            beneficiary=beneficiary,
+            status='pending',
+            verification_notes=request.POST.get('verification_notes', '')
+        )
+        messages.success(request, 'Verification request created successfully!')
+        return redirect('beneficiary_detail', id=beneficiary.id)
+    
+    context = {
+        'beneficiary': beneficiary,
+        'title': 'Request Beneficiary Verification'
+    }
+    return render(request, 'program/beneficiary_verification_form.html', context)
+
+
+@login_required
+def beneficiary_verification_approve(request, verification_id):
+    """Approve a beneficiary verification"""
+    if not request.user.has_perm('program.can_approve_verification'):
+        messages.error(request, 'You do not have permission to approve verifications.')
+        return redirect('home')
+        
+    verification = get_object_or_404(BeneficiaryVerification, id=verification_id)
+    
+    if verification.status != 'pending':
+        messages.error(request, 'This verification is not pending.')
+        return redirect('beneficiary_detail', id=verification.beneficiary.id)
+    
+    if request.method == 'POST':
+        notes = request.POST.get('verification_notes', '')
+        verification.approve(request.user, notes)
+        messages.success(request, f'Verification approved for {verification.beneficiary.full_name}!')
+        return redirect('beneficiary_detail', id=verification.beneficiary.id)
+    
+    context = {
+        'verification': verification,
+        'action': 'approve'
+    }
+    return render(request, 'program/beneficiary_verification_decision.html', context)
+
+
+@login_required
+def beneficiary_verification_reject(request, verification_id):
+    """Reject a beneficiary verification"""
+    if not request.user.has_perm('program.can_reject_verification'):
+        messages.error(request, 'You do not have permission to reject verifications.')
+        return redirect('home')
+        
+    verification = get_object_or_404(BeneficiaryVerification, id=verification_id)
+    
+    if verification.status != 'pending':
+        messages.error(request, 'This verification is not pending.')
+        return redirect('beneficiary_detail', id=verification.beneficiary.id)
+    
+    if request.method == 'POST':
+        notes = request.POST.get('verification_notes', '')
+        verification.reject(request.user, notes)
+        messages.success(request, f'Verification rejected for {verification.beneficiary.full_name}.')
+        return redirect('beneficiary_detail', id=verification.beneficiary.id)
+    
+    context = {
+        'verification': verification,
+        'action': 'reject'
+    }
+    return render(request, 'program/beneficiary_verification_decision.html', context)
+
 
     # VISION & HELP PAGES
 
