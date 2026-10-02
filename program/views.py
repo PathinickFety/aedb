@@ -7,20 +7,27 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
+from functools import wraps
+from django.urls import reverse
 
 
 def group_required(*group_names):
     """Decorator that checks whether a user belongs to specified group(s) or is superuser."""
-    def in_groups(user):
-        if not user.is_authenticated:
-            return False
-        if user.is_superuser:
-            return True
-        return user.groups.filter(name__in=group_names).exists()
-
-    return user_passes_test(in_groups, login_url='login')
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.is_authenticated:
+                return redirect('login')
+            if request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
+            if request.user.groups.filter(name__in=group_names).exists():
+                return view_func(request, *args, **kwargs)
+            messages.error(request, 'You do not have permission to access that page.')
+            return redirect('home')
+        return _wrapped_view
+    return decorator
 
 
 def ensure_default_groups():
@@ -29,7 +36,7 @@ def ensure_default_groups():
         Group.objects.get_or_create(name=group_name)
 
 from .models import Program, Beneficiary, ProgramLike, ProgramComment, ProgramShare, BeneficiaryVerification
-from .forms import ProgramForm, BeneficiaryForm
+from .forms import ProgramForm, BeneficiaryForm, ProfileForm
 
 
 # =====================
@@ -47,6 +54,22 @@ def register_view(request):
             volunteer_group = Group.objects.get(name='Volunteer')
             user.groups.add(volunteer_group)
             login(request, user)
+            # Create a beneficiary profile for the registering user
+            Beneficiary.objects.create(
+                user=user,
+                full_name=user.get_full_name() or user.username,
+                gender='male',
+                phone1='Not provided',
+                address='Registered via user portal',
+                family_size=1,
+                category='other',
+                occupation='Not provided',
+                monthly_income=0,
+                is_verified=False,
+                is_needed_person=False,
+                is_serious=False,
+                is_muslim=True,
+            )
             messages.success(request, f'Welcome {user.username}! Your account has been created successfully.')
             return redirect('home')
     else:
@@ -87,22 +110,57 @@ def logout_view(request):
 def profile_view(request):
     """User profile view - users can only edit their own profile"""
     user = request.user
-    
+    # Use ProfileForm to validate inputs including optional avatar upload
     if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES)
+
         # Additional security check - ensure user is editing their own profile
         if str(user.id) != str(request.POST.get('user_id', user.id)):
             messages.error(request, 'You can only edit your own profile.')
             return redirect('profile')
-            
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name = request.POST.get('last_name', user.last_name)
-        user.email = request.POST.get('email', user.email)
-        user.save()
-        messages.success(request, 'Your profile has been updated successfully.')
-        return redirect('profile')
-    
+
+        if form.is_valid():
+            user.first_name = form.cleaned_data.get('first_name') or user.first_name
+            user.last_name = form.cleaned_data.get('last_name') or user.last_name
+            user.email = form.cleaned_data.get('email') or user.email
+            user.save()
+
+            photo = form.cleaned_data.get('photo')
+            if photo:
+                # Ensure beneficiary profile exists for storing photo
+                beneficiary = getattr(user, 'beneficiary_profile', None)
+                if not beneficiary:
+                    beneficiary = Beneficiary.objects.create(
+                        user=user,
+                        full_name=user.get_full_name() or user.username,
+                        gender='male',
+                        phone1='Not provided',
+                        address='Created via profile',
+                        family_size=1,
+                        category='other',
+                    )
+                beneficiary.photo = photo
+                beneficiary.save()
+
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('profile')
+        else:
+            # fall through to render form with errors
+            return render(request, 'program/profile.html', {
+                'user': user,
+                'form': form,
+            })
+
+    # GET: prepopulate form
+    initial = {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+    }
+    form = ProfileForm(initial=initial)
     return render(request, 'program/profile.html', {
-        'user': user
+        'user': user,
+        'form': form,
     })
 
 
@@ -324,12 +382,17 @@ def program_delete(request, id):
 
 def beneficiary_detail(request, id):
     """View beneficiary details"""
-    beneficiary = Beneficiary.objects.get(id=id)
+    beneficiary = get_object_or_404(Beneficiary, id=id)
     programs = beneficiary.programs.all().order_by('-date')
+    user_is_owner = request.user.is_authenticated and beneficiary.user == request.user
+    user_is_staff = request.user.is_authenticated and (
+        request.user.is_superuser or request.user.groups.filter(name__in=['Admin', 'Staff']).exists()
+    )
 
     context = {
         'beneficiary': beneficiary,
         'programs': programs,
+        'can_edit_beneficiary': user_is_owner or user_is_staff,
     }
     return render(request, 'program/beneficiary_detail.html', context)
 
@@ -354,12 +417,17 @@ def beneficiary_create(request):
     return render(request, 'program/beneficiary_form.html', context)
 
 
-@group_required('Admin', 'Staff')
 def beneficiary_update(request, id):
     """Update an existing beneficiary"""
-    ensure_default_groups()
     beneficiary = get_object_or_404(Beneficiary, id=id)
-    
+    user_is_owner = request.user.is_authenticated and beneficiary.user == request.user
+    user_is_staff = request.user.is_authenticated and (
+        request.user.is_superuser or request.user.groups.filter(name__in=['Admin', 'Staff']).exists()
+    )
+    if not (user_is_owner or user_is_staff):
+        messages.error(request, 'You do not have permission to edit this beneficiary profile.')
+        return redirect('home')
+
     if request.method == 'POST':
         form = BeneficiaryForm(request.POST, request.FILES, instance=beneficiary)
         if form.is_valid():
@@ -377,17 +445,29 @@ def beneficiary_update(request, id):
     return render(request, 'program/beneficiary_form.html', context)
 
 
-@group_required('Admin', 'Staff')
+@login_required
 def beneficiary_delete(request, id):
-    """Delete a beneficiary"""
+    """Delete a beneficiary if the user owns it or is staff/admin."""
     ensure_default_groups()
     beneficiary = get_object_or_404(Beneficiary, id=id)
-    
+    user_is_owner = request.user == beneficiary.user
+    user_is_staff = request.user.is_superuser or request.user.groups.filter(name__in=['Admin', 'Staff']).exists()
+
+    if not (user_is_owner or user_is_staff):
+        messages.error(request, 'You do not have permission to delete this beneficiary profile.')
+        return redirect('home')
+
     if request.method == 'POST':
+        if user_is_owner and beneficiary.user:
+            messages.success(request, 'Your account and profile were deleted successfully. Please register again.')
+            logout(request)
+            beneficiary.user.delete()
+            return redirect('register')
+
         beneficiary.delete()
         messages.success(request, 'Beneficiary deleted successfully!')
         return redirect('home')
-    
+
     context = {
         'beneficiary': beneficiary,
     }
@@ -421,6 +501,21 @@ def beneficiary_verification_create(request, beneficiary_id):
             verification_notes=request.POST.get('verification_notes', '')
         )
         messages.success(request, 'Verification request created successfully!')
+        # Notify approvers (Admin/Staff users) via email if configured
+        try:
+            from django.core.mail import send_mail
+            approvers = User.objects.filter(groups__name__in=['Admin', 'Staff']).distinct()
+            subject = f"Verification request: {beneficiary.full_name}"
+            approve_url = request.build_absolute_uri(
+                reverse('beneficiary_verification_approve', args=[verification.id])
+            )
+            message = f"A new verification request was submitted for {beneficiary.full_name}.\n\nNotes:\n{verification.verification_notes}\n\nReview: {approve_url}"
+            recipient_list = [u.email for u in approvers if u.email]
+            if recipient_list:
+                send_mail(subject, message, None, recipient_list, fail_silently=True)
+        except Exception:
+            # don't block request if email sending fails
+            pass
         return redirect('beneficiary_detail', id=beneficiary.id)
     
     context = {
@@ -433,7 +528,7 @@ def beneficiary_verification_create(request, beneficiary_id):
 @login_required
 def beneficiary_verification_approve(request, verification_id):
     """Approve a beneficiary verification"""
-    if not request.user.has_perm('program.can_approve_verification'):
+    if not (request.user.has_perm('program.can_approve_verification') or request.user.is_superuser or request.user.groups.filter(name__in=['Admin','Staff']).exists()):
         messages.error(request, 'You do not have permission to approve verifications.')
         return redirect('home')
         
@@ -459,7 +554,7 @@ def beneficiary_verification_approve(request, verification_id):
 @login_required
 def beneficiary_verification_reject(request, verification_id):
     """Reject a beneficiary verification"""
-    if not request.user.has_perm('program.can_reject_verification'):
+    if not (request.user.has_perm('program.can_reject_verification') or request.user.is_superuser or request.user.groups.filter(name__in=['Admin','Staff']).exists()):
         messages.error(request, 'You do not have permission to reject verifications.')
         return redirect('home')
         
@@ -480,6 +575,16 @@ def beneficiary_verification_reject(request, verification_id):
         'action': 'reject'
     }
     return render(request, 'program/beneficiary_verification_decision.html', context)
+
+
+@group_required('Admin', 'Staff')
+def verifications_list(request):
+    """List pending verifications for admin/staff review"""
+    verifications = BeneficiaryVerification.objects.filter(status='pending').select_related('beneficiary').order_by('-created_at')
+    context = {
+        'verifications': verifications,
+    }
+    return render(request, 'program/verification_list.html', context)
 
 
     # VISION & HELP PAGES

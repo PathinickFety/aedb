@@ -1,4 +1,5 @@
 {% extends "navbar.html" %}
+{% load program_tags %}
 
 {% block title %}All Beneficiaries - AEDB{% endblock %}
 
@@ -12,6 +13,7 @@
                     type="text" 
                     name="q" 
                     class="search-input" 
+                    aria-label="Search beneficiaries"
                     placeholder="Search beneficiaries by name, phone, address, or category..." 
                     value="{{ search_query }}"
                 >
@@ -41,7 +43,7 @@
         {% if beneficiaries %}
             <div class="beneficiaries-grid">
                 {% for beneficiary in beneficiaries %}
-                    <a href="{% url 'beneficiary_detail' beneficiary.id %}" class="beneficiary-card">
+                    <a href="{% url 'beneficiary_detail' beneficiary.id %}" class="beneficiary-card {% if beneficiary.verification_status == 'unverified' %}unverified{% elif beneficiary.verification_status == 'pending' %}pending{% endif %}">
                         <div class="card-photo">
                             {% if beneficiary.photo %}
                                 <img src="{{ beneficiary.photo.url }}" alt="{{ beneficiary.full_name }}">
@@ -57,6 +59,10 @@
                                     <span class="detail-value badge">{{ beneficiary.get_category_display }}</span>
                                 </div>
                                 <div class="detail-item">
+                                    <span class="detail-label">Gender:</span>
+                                    <span class="detail-value">{{ beneficiary.get_gender_display }}</span>
+                                </div>
+                                <div class="detail-item">
                                     <span class="detail-label">Age:</span>
                                     <span class="detail-value">{{ beneficiary.age|default:"N/A" }} years</span>
                                 </div>
@@ -65,12 +71,25 @@
                                     <span class="detail-value">{{ beneficiary.phone1 }}</span>
                                 </div>
                                 <div class="detail-item">
+                                    <span class="detail-label">Occupation:</span>
+                                    <span class="detail-value">{{ beneficiary.occupation|default:"N/A" }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Income:</span>
+                                    <span class="detail-value">{{ beneficiary.monthly_income|default:"N/A" }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Location:</span>
+                                    <span class="detail-value">{{ beneficiary.village|default:"" }}{% if beneficiary.village and beneficiary.district %}, {% endif %}{{ beneficiary.district|default:"" }}{% if beneficiary.region %}, {{ beneficiary.region }}{% endif %}</span>
+                                </div>
+                                <div class="detail-item">
                                     <span class="detail-label">Family Size:</span>
                                     <span class="detail-value">{{ beneficiary.family_size|default:"N/A" }} members</span>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
+                            <span class="status-pill {% if beneficiary.verification_status == 'unverified' %}unverified{% elif beneficiary.verification_status == 'pending' %}pending{% endif %}">{{ beneficiary.verification_status|capfirst }}</span>
                             <small>Added: {{ beneficiary.created_at|date:"M d, Y" }}</small>
                         </div>
                     </a>
@@ -81,7 +100,11 @@
                 <div class="empty-icon">👥</div>
                 <h3>No Beneficiaries Found</h3>
                 <p>Start by adding your first beneficiary to the system</p>
-                <a href="{% url 'beneficiary_create' %}" class="btn btn-primary">Add Beneficiary</a>
+                {% if user.is_authenticated %}
+                    {% if user.is_superuser or user|has_group:"Admin,Staff" %}
+                        <a href="{% url 'beneficiary_create' %}" class="btn btn-primary">Add Beneficiary</a>
+                    {% endif %}
+                {% endif %}
             </div>
         {% endif %}
     </section>
@@ -114,6 +137,37 @@
         transform: translateY(-8px);
         box-shadow: 0 12px 24px var(--shadow);
         border-color: var(--button-primary-bg);
+    }
+
+    .beneficiary-card.unverified {
+        background-color: rgba(220, 53, 69, 0.08);
+        border-color: rgba(220, 53, 69, 0.35);
+    }
+
+    .beneficiary-card.pending {
+        background-color: rgba(255, 193, 7, 0.12);
+        border-color: rgba(255, 193, 7, 0.4);
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 0.8em;
+        font-weight: 700;
+        margin-right: 10px;
+    }
+
+    .status-pill.unverified {
+        background-color: rgba(220, 53, 69, 0.12);
+        color: #c82333;
+    }
+
+    .status-pill.pending {
+        background-color: rgba(255, 193, 7, 0.12);
+        color: #856404;
     }
 
     .card-photo {
@@ -192,25 +246,29 @@
     .section-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        border-bottom: 3px solid var(--button-primary-bg);
-        padding-bottom: 15px;
+        align-items: baseline;
+        gap: 18px;
+        margin-bottom: 28px;
+        border-bottom: 1px solid rgba(0, 123, 255, 0.18);
+        padding-bottom: 16px;
     }
 
     .section-header h2 {
         margin: 0;
         color: var(--text-primary);
-        font-size: 1.8em;
+        font-size: 2rem;
+        letter-spacing: -0.03em;
+        font-weight: 700;
     }
 
     .section-count {
-        background-color: var(--button-primary-bg);
-        color: white;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        font-weight: bold;
+        background-color: rgba(0, 123, 255, 0.15);
+        color: var(--button-primary-bg);
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-size: 0.95em;
+        font-weight: 700;
+        border: 1px solid rgba(0, 123, 255, 0.2);
     }
 
     .search-section {

@@ -31,6 +31,7 @@ urlpatterns = [
     path('beneficiaries/<int:beneficiary_id>/verify/', views.beneficiary_verification_create, name='beneficiary_verification_create'),
     path('verifications/<int:verification_id>/approve/', views.beneficiary_verification_approve, name='beneficiary_verification_approve'),
     path('verifications/<int:verification_id>/reject/', views.beneficiary_verification_reject, name='beneficiary_verification_reject'),
+    path('verifications/', views.verifications_list, name='verifications_list'),
 
     # Program interaction URLs
     path('programs/<int:program_id>/like/', views.program_like, name='program_like'),

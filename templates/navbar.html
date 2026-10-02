@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load program_tags %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +10,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar">
         <div class="navbar-container">
             <a class="navbar-brand" href="{% url 'home' %}" title="AEDB">
@@ -20,12 +22,26 @@
                 <li><a href="{% url 'help' %}">Help</a></li>
                 <li><a href="{% url 'upcoming_updates' %}">Upcoming Updates</a></li>
                 {% if user.is_authenticated %}
+                    {% if user.is_superuser or user|has_group:"Admin,Staff" %}
+                        <li><a href="{% url 'program_create' %}">New Program</a></li>
+                        <li><a href="{% url 'beneficiary_create' %}">New Beneficiary</a></li>
+                        <li><a href="{% url 'verifications_list' %}">Verifications</a></li>
+                    {% endif %}
+                {% endif %}
+                {% if user.is_authenticated %}
                     <li><a href="{% url 'profile' %}">Profile</a></li>
                 {% endif %}
             </ul>
             <div class="navbar-auth">
                 {% if user.is_authenticated %}
-                    <span class="user-greeting">Hello, {{ user.get_full_name|default:user.username }}</span>
+                    <span class="user-greeting" title="{{ user.email|default:'No email provided' }}">
+                        Hello,
+                        {% if user.get_full_name %}
+                            {{ user.get_full_name }}{% if user.username != user.get_full_name %} ({{ user.username }}){% endif %}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                    </span>
                     <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">Logout</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Login</a>
@@ -49,7 +65,7 @@
         </div>
     {% endif %}
 
-    <main>
+    <main id="main-content">
         {% block content %}{% endblock %}
     </main>
 

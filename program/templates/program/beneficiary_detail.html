@@ -83,6 +83,32 @@
         margin: 40px 0;
     }
 
+    .status-banner {
+        padding: 18px 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        color: #1f2d3d;
+        font-weight: 700;
+    }
+
+    .status-banner.unverified {
+        background-color: rgba(220, 53, 69, 0.12);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        color: #842029;
+    }
+
+    .status-banner.pending {
+        background-color: rgba(255, 193, 7, 0.14);
+        border: 1px solid rgba(255, 193, 7, 0.35);
+        color: #856404;
+    }
+
+    .status-banner.approved {
+        background-color: rgba(25, 135, 84, 0.12);
+        border: 1px solid rgba(25, 135, 84, 0.35);
+        color: #0f5132;
+    }
+
     .beneficiary-programs h3 {
         color: var(--text-color);
         text-align: center;
@@ -211,12 +237,26 @@
         <p class="category">{{ beneficiary.get_category_display }}</p>
     </div>
     
+    {% if can_edit_beneficiary %}
     <div class="beneficiary-actions">
-        <a href="{% url 'beneficiary_update' id=beneficiary.id %}" class="btn btn-secondary">Edit Beneficiary</a>
-        <a href="{% url 'beneficiary_delete' id=beneficiary.id %}" class="btn btn-danger">Delete Beneficiary</a>
+        <a href="{% url 'beneficiary_update' id=beneficiary.id %}" class="btn btn-secondary">Edit Profile</a>
+        <a href="{% url 'beneficiary_delete' id=beneficiary.id %}" class="btn btn-danger">Delete Profile</a>
     </div>
+    {% endif %}
     
     <div class="beneficiary-info">
+        <div class="status-banner {% if beneficiary.verification_status == 'unverified' %}unverified{% elif beneficiary.verification_status == 'pending' %}pending{% elif beneficiary.verification_status == 'approved' %}approved{% endif %}">
+            {% if beneficiary.verification_status == 'unverified' %}
+                Pending validation - profile is not yet verified.
+            {% elif beneficiary.verification_status == 'pending' %}
+                Verification requested - awaiting review.
+            {% elif beneficiary.verification_status == 'approved' %}
+                Verified beneficiary.
+            {% else %}
+                Verification status: {{ beneficiary.verification_status|capfirst }}.
+            {% endif %}
+        </div>
+
         <h3>Personal Information</h3>
         <p><strong>Full Name:</strong> {{ beneficiary.full_name }}</p>
         {% if beneficiary.date_of_birth %}
@@ -225,7 +265,17 @@
         {% if beneficiary.age %}
             <p><strong>Age:</strong> {{ beneficiary.age }} years</p>
         {% endif %}
+        <p><strong>Gender:</strong> {{ beneficiary.get_gender_display }}</p>
+        {% if beneficiary.national_id %}
+            <p><strong>National ID:</strong> {{ beneficiary.national_id }}</p>
+        {% endif %}
         <p><strong>Category:</strong> {{ beneficiary.get_category_display }}</p>
+        {% if beneficiary.occupation %}
+            <p><strong>Occupation:</strong> {{ beneficiary.occupation }}</p>
+        {% endif %}
+        {% if beneficiary.monthly_income %}
+            <p><strong>Monthly Income:</strong> {{ beneficiary.monthly_income }} Ariary </p>
+        {% endif %}
         
         <h3>Contact Information</h3>
         <p><strong>Primary Phone:</strong> {{ beneficiary.phone1 }}</p>
@@ -236,8 +286,18 @@
             <p><strong>Tertiary Phone:</strong> {{ beneficiary.phone3 }}</p>
         {% endif %}
         
+        {% if beneficiary.id_document %}
+            <h3>Scanned ID / Passport</h3>
+            <p><a href="{{ beneficiary.id_document.url }}" target="_blank" rel="noopener noreferrer">Download uploaded document</a></p>
+        {% endif %}
+
         <h3>Address</h3>
         <p>{{ beneficiary.address }}</p>
+        {% if beneficiary.village or beneficiary.district or beneficiary.region %}
+            <p><strong>Village:</strong> {{ beneficiary.village|default:'N/A' }}</p>
+            <p><strong>District:</strong> {{ beneficiary.district|default:'N/A' }}</p>
+            <p><strong>Region:</strong> {{ beneficiary.region|default:'N/A' }}</p>
+        {% endif %}
         
         <h3>Photo</h3>
         {% if beneficiary.photo %}
@@ -273,11 +333,12 @@
             {% endif %}
             
             {% if user.is_authenticated and user|has_group:"Admin,Staff" %}
-                <div class="verification-actions" style="margin-top: 15px;">
+                <div class="verification-actions" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                     {% if beneficiary.verification_status == 'unverified' %}
                         <a href="{% url 'beneficiary_verification_create' beneficiary.id %}" class="btn btn-primary btn-sm">Request Verification</a>
                     {% elif beneficiary.verification_status == 'pending' %}
-                        <p style="color: orange; margin: 0;">Verification request is pending review.</p>
+                        <a href="{% url 'beneficiary_verification_approve' beneficiary.latest_verification.id %}" class="btn btn-success btn-sm">Approve</a>
+                        <a href="{% url 'beneficiary_verification_reject' beneficiary.latest_verification.id %}" class="btn btn-danger btn-sm">Reject</a>
                     {% else %}
                         <a href="{% url 'beneficiary_verification_create' beneficiary.id %}" class="btn btn-outline-primary btn-sm">Request Re-verification</a>
                     {% endif %}

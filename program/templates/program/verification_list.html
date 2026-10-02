@@ -1,0 +1,29 @@
+{% extends "navbar.html" %}
+{% load static %}
+
+{% block title %}Pending Verifications{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <h1>Pending Beneficiary Verifications</h1>
+    {% if verifications %}
+        <div class="list-grid">
+            {% for v in verifications %}
+                <div class="verification-card">
+                    <h3>{{ v.beneficiary.full_name }}</h3>
+                    <p><strong>Category:</strong> {{ v.beneficiary.get_category_display }}</p>
+                    <p><strong>Submitted:</strong> {{ v.created_at|date:"M j, Y g:i A" }}</p>
+                    {% if v.verification_notes %}<p><strong>Notes:</strong> {{ v.verification_notes }}</p>{% endif %}
+                    <div style="margin-top:10px; display:flex; gap:8px;">
+                        <a href="{% url 'beneficiary_verification_approve' v.id %}" class="btn btn-success">Approve</a>
+                        <a href="{% url 'beneficiary_verification_reject' v.id %}" class="btn btn-danger">Reject</a>
+                        <a href="{% url 'beneficiary_detail' v.beneficiary.id %}" class="btn btn-secondary">View Beneficiary</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No pending verification requests.</p>
+    {% endif %}
+</div>
+{% endblock %}

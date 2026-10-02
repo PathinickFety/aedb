@@ -9,9 +9,36 @@
             <h2>Your Profile</h2>
             <p class="form-subtitle">Manage your account information</p>
 
-            <form method="post" class="auth-form">
+            <form method="post" enctype="multipart/form-data" class="auth-form">
                 {% csrf_token %}
-                <input type="hidden" name="user_id" value="{{ user.id }}"
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+
+                {% if form and form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label>Avatar</label>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        {% if user.beneficiary_profile and user.beneficiary_profile.photo %}
+                            <img src="{{ user.beneficiary_profile.photo.url }}" alt="{{ user.get_full_name|default:user.username }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border-color);">
+                        {% else %}
+                            <div style="width:80px;height:80px;background:var(--input-bg);display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--border-color);">👤</div>
+                        {% endif %}
+                        <div>
+                            <input type="file" name="photo" accept="image/*">
+                            {% if form and form.errors.photo %}
+                                <div class="alert alert-danger">
+                                    {% for err in form.errors.photo %}<small>{{ err }}</small>{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label for="username">Username</label>
@@ -32,6 +59,16 @@
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>User Role</label>
+                    <input type="text" value="{% if user.is_superuser %}Superuser{% else %}{{ user.groups.all|join:", "|default:'Volunteer' }}{% endif %}" disabled class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Last Login</label>
+                    <input type="text" value="{{ user.last_login|date:'F j, Y g:i A'|default:'Never logged in' }}" disabled class="form-control">
                 </div>
 
                 <div class="form-group">

@@ -16,48 +16,83 @@ class Beneficiary(models.Model):
         ('student', 'Madrassat Student'),
         ('teacher', 'Oustadh'),
         ('elder', 'Elder'),
-        ('orphan', 'Orphan kid'),
+        ('orphan', 'Orphan'),
         ('sick', 'Sick Person'),
         ('disabled', 'Disabled Person'),
         ('widow', 'Widow'),
         ('refugee', 'Refugee'),
-        ('family', 'Family member of a beneficiary'),
-        ('family', 'Family member of staff'),
+        ('family_beneficiary', 'Family Member of Beneficiary'),
+        ('family_staff', 'Family Member of Staff'),
         ('other', 'Other'),
     ]
 
-    full_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField(blank=True, null=True)
-    age = models.PositiveIntegerField(blank=True, null=True)  # Optional age field for easier sorting/filtering
-
-    phone1 = models.CharField(max_length=20)
-    phone2 = models.CharField(max_length=20, blank=True, null=True)
-    phone3 = models.CharField(max_length=20, blank=True, null=True)
-
-    address = models.TextField()
-    family_size = models.PositiveIntegerField(
-        blank=True,
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='beneficiary_profile',
         null=True,
-        validators=[MinValueValidator(1)]
+        blank=True
     )
 
+    full_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField(blank=True, null=True)
+    age = models.PositiveIntegerField(blank=True, null=True)
+
+    gender = models.CharField(
+        max_length=10,
+        choices=[
+            ("male", "Male"),
+            ("female", "Female")
+        ]
+    )
+
+    national_id = models.CharField(max_length=50, blank=True)
+
+    phone1 = models.CharField(max_length=20)
+    phone2 = models.CharField(max_length=20, blank=True)
+    phone3 = models.CharField(max_length=20, blank=True)
+
+    address = models.TextField()
+
+    village = models.CharField(max_length=150, blank=True)
+    district = models.CharField(max_length=150, blank=True)
+    region = models.CharField(max_length=150, blank=True)
+
+    family_size = models.PositiveIntegerField(default=1)
+
+    monthly_income = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    occupation = models.CharField(max_length=150, blank=True)
+
     photo = models.ImageField(
-        upload_to='beneficiaries/',
+        upload_to="beneficiaries/",
+        blank=True,
+        null=True
+    )
+
+    id_document = models.FileField(
+        upload_to="beneficiaries/id_documents/",
         blank=True,
         null=True
     )
 
     category = models.CharField(
-        max_length=20,
+        max_length=30,
         choices=CATEGORY_CHOICES
     )
-    remarks = models.TextField(blank=True, null=True)
+
+    remarks = models.TextField(blank=True)
 
     is_verified = models.BooleanField(default=False)
     is_needed_person = models.BooleanField(default=False)
     is_serious = models.BooleanField(default=False)
     is_muslim = models.BooleanField(default=True)
-    
+
     participated_programs = models.PositiveIntegerField(default=0)
     # increase this count every time the beneficiary participates in a program to track their involvement and identify those who are most in need of assistance
 
@@ -106,6 +141,266 @@ class Beneficiary(models.Model):
     def __str__(self):
         return self.full_name
 
+
+class PoorBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="poor_profile"
+    )
+
+    employment_status = models.CharField(max_length=100)
+
+    income_source = models.CharField(max_length=150)
+
+    monthly_income = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    house_type = models.CharField(max_length=100)
+
+    house_owner = models.BooleanField(default=False)
+
+    receives_government_help = models.BooleanField(default=False)
+
+    number_of_children = models.PositiveIntegerField(default=0)
+
+    has_food_shortage = models.BooleanField(default=False)
+
+    debt_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    priority_score = models.PositiveIntegerField(default=0)
+    
+class StudentBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="student_profile"
+    )
+
+    madrassa_name = models.CharField(max_length=255)
+
+    level = models.CharField(max_length=100)
+
+    memorized_juz = models.PositiveIntegerField(default=0)
+
+    school_name = models.CharField(max_length=255, blank=True)
+
+    school_grade = models.CharField(max_length=100, blank=True)
+
+    orphan = models.BooleanField(default=False)
+
+    sponsor_name = models.CharField(max_length=255, blank=True)
+
+    boarding = models.BooleanField(default=False)
+
+    attendance_percentage = models.PositiveIntegerField(default=100)
+    
+class StaffBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="staff_profile"
+    )
+
+    employee_id = models.CharField(max_length=50)
+
+    department = models.CharField(max_length=100)
+
+    position = models.CharField(max_length=100)
+
+    employment_date = models.DateField()
+
+    salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    active = models.BooleanField(default=True)
+    
+class TeacherBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="teacher_profile"
+    )
+
+    specialization = models.CharField(max_length=200)
+
+    years_of_experience = models.PositiveIntegerField()
+
+    qualification = models.CharField(max_length=200)
+
+    teaches_quran = models.BooleanField(default=True)
+
+    monthly_allowance = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    
+
+class ElderBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="elder_profile"
+    )
+
+    lives_alone = models.BooleanField(default=False)
+
+    mobility_problem = models.BooleanField(default=False)
+
+    chronic_disease = models.BooleanField(default=False)
+
+    caregiver_name = models.CharField(max_length=255, blank=True)
+
+    receives_pension = models.BooleanField(default=False)
+
+    pension_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    
+
+class OrphanBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="orphan_profile"
+    )
+
+    father_alive = models.BooleanField(default=False)
+
+    mother_alive = models.BooleanField(default=True)
+
+    guardian_name = models.CharField(max_length=255)
+
+    guardian_phone = models.CharField(max_length=20)
+
+    school_name = models.CharField(max_length=255)
+
+    sponsor = models.CharField(max_length=255, blank=True)
+
+    receives_monthly_support = models.BooleanField(default=False)
+    
+class SickBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="medical_profile"
+    )
+
+    disease = models.CharField(max_length=255)
+
+    hospital = models.CharField(max_length=255)
+
+    doctor = models.CharField(max_length=255)
+
+    treatment_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    needs_surgery = models.BooleanField(default=False)
+
+    chronic = models.BooleanField(default=False)
+
+    disability_caused = models.BooleanField(default=False)
+    
+class DisabledBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="disability_profile"
+    )
+
+    disability_type = models.CharField(max_length=100)
+
+    disability_percentage = models.PositiveIntegerField()
+
+    uses_wheelchair = models.BooleanField(default=False)
+
+    needs_assistant = models.BooleanField(default=False)
+
+    can_work = models.BooleanField(default=True)
+    
+class WidowBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="widow_profile"
+    )
+
+    husband_date_of_death = models.DateField()
+
+    children = models.PositiveIntegerField(default=0)
+
+    employed = models.BooleanField(default=False)
+
+    monthly_income = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    receives_support = models.BooleanField(default=False)
+    
+class RefugeeBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="refugee_profile"
+    )
+
+    country_of_origin = models.CharField(max_length=100)
+
+    refugee_card_number = models.CharField(max_length=100)
+
+    arrival_date = models.DateField()
+
+    refugee_camp = models.CharField(max_length=255)
+
+    has_permanent_home = models.BooleanField(default=False)
+
+    employment_status = models.CharField(max_length=100)
+    
+class FamilyBeneficiary(models.Model):
+
+    beneficiary = models.OneToOneField(
+        Beneficiary,
+        on_delete=models.CASCADE,
+        related_name="family_profile"
+    )
+
+    related_person = models.ForeignKey(
+        Beneficiary,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    relationship = models.CharField(max_length=100)
+
+    dependent = models.BooleanField(default=True)
+    
 
 # -------------------------# BENEFICIARY VERIFICATION MODEL
 # -------------------------
@@ -164,6 +459,16 @@ class BeneficiaryVerification(models.Model):
         # Update beneficiary verification status
         self.beneficiary.is_verified = True
         self.beneficiary.save()
+        # Notify beneficiary user (if any)
+        try:
+            from django.core.mail import send_mail
+            recipient = self.beneficiary.user.email if self.beneficiary.user and self.beneficiary.user.email else None
+            if recipient:
+                subject = f"Your profile has been verified"
+                message = f"Hello {self.beneficiary.full_name},\n\nYour beneficiary profile has been approved and marked as verified.\n\nNotes: {self.verification_notes or 'None'}"
+                send_mail(subject, message, None, [recipient], fail_silently=True)
+        except Exception:
+            pass
     
     def reject(self, user, notes=None):
         """Reject the verification"""
@@ -175,6 +480,16 @@ class BeneficiaryVerification(models.Model):
         # Update beneficiary verification status
         self.beneficiary.is_verified = False
         self.beneficiary.save()
+        # Notify beneficiary user (if any)
+        try:
+            from django.core.mail import send_mail
+            recipient = self.beneficiary.user.email if self.beneficiary.user and self.beneficiary.user.email else None
+            if recipient:
+                subject = f"Your profile verification was rejected"
+                message = f"Hello {self.beneficiary.full_name},\n\nYour beneficiary profile verification request was rejected.\n\nNotes: {self.verification_notes or 'None'}"
+                send_mail(subject, message, None, [recipient], fail_silently=True)
+        except Exception:
+            pass
 
 
 # -------------------------  # PROGRAM MODEL
@@ -274,3 +589,5 @@ class ProgramShare(models.Model):
 
     def __str__(self):
         return f"{self.user.username} shared {self.program.name}"
+    
+    
